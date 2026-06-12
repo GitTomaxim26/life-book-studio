@@ -7,7 +7,12 @@
 // future_to_avoid, vision.
 
 import type { DocJSON } from "./types";
-import { keyExperiencesSeedContent } from "./seeds";
+import {
+  keyExperiencesSeedContent,
+  newIdentitySeedContent,
+  futureToAvoidSeedContent,
+  visionSeedContent,
+} from "./seeds";
 
 export interface ChapterDef {
   slug: string;
@@ -21,9 +26,19 @@ export const CHAPTERS: Record<string, ChapterDef> = {
     lede: "The moments that made you who you are.",
     seed: keyExperiencesSeedContent,
   },
-
-  // Proven next, one entry at a time:
-  // new_identity:    { slug: "new_identity",    lede: "...", seed: newIdentitySeedContent },
-  // future_to_avoid: { slug: "future_to_avoid", lede: "...", seed: futureToAvoidSeedContent },
-  // vision:          { slug: "vision",          lede: "...", seed: visionSeedContent },
+  new_identity: {
+    slug: "new_identity",
+    lede: "The person this book is being written toward.",
+    seed: newIdentitySeedContent,
+  },
+  future_to_avoid: {
+    slug: "future_to_avoid",
+    lede: "The life you're choosing not to live.",
+    seed: futureToAvoidSeedContent,
+  },
+  vision: {
+    slug: "vision",
+    lede: "The whole life, pulled into focus.",
+    seed: visionSeedContent,
+  },
 };

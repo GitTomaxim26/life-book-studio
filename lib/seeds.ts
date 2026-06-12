@@ -62,6 +62,75 @@ export function keyExperiencesSeedContent(): DocJSON {
   };
 }
 
+/** New Identity (Part IV · Future) — the person the book is being written toward. */
+export function newIdentitySeedContent(): DocJSON {
+  return {
+    type: "doc",
+    content: [
+      h2("The person I'm becoming"),
+      prompt("Who is the version of you that this book is being written toward?"),
+      blank(),
+      h2("What changes in me"),
+      prompt(
+        "What is different about how this person thinks, feels, and moves through a day?"
+      ),
+      blank(),
+      h2("What I now refuse"),
+      prompt("What does this version of you no longer accept, tolerate, or return to?"),
+      blank(),
+      h2("What I'm moving toward"),
+      prompt("What is this person building, and what are they walking into?"),
+      blank(),
+    ],
+  };
+}
+
+/** Future To Avoid (Part IV · Future) — the life being steered away from. */
+export function futureToAvoidSeedContent(): DocJSON {
+  return {
+    type: "doc",
+    content: [
+      h2("The drift I fear"),
+      prompt("If nothing changes, where does the current quietly carry you?"),
+      blank(),
+      h2("Who I'd become"),
+      prompt(
+        "Picture the version of you that gave up. Who is that, and how did they get there?"
+      ),
+      blank(),
+      h2("The cost of staying the same"),
+      prompt("What does it cost you — and the people you love — to not change?"),
+      blank(),
+      h2("What I'm choosing instead"),
+      prompt("Name the turn you're making, away from this."),
+      blank(),
+    ],
+  };
+}
+
+/** Life Vision (Part V) — the whole life, pulled into focus. */
+export function visionSeedContent(): DocJSON {
+  return {
+    type: "doc",
+    content: [
+      h2("The life, in one breath"),
+      prompt("If you had to say it in a sentence, what is the life you're writing toward?"),
+      blank(),
+      h2("A day in it"),
+      prompt("Walk through one ordinary day in that life, from waking to sleep."),
+      blank(),
+      h2("What it's built on"),
+      prompt(
+        "What foundations — people, work, practices, values — hold this life up?"
+      ),
+      blank(),
+      h2("Why it matters"),
+      prompt("Why this life, and not another? What makes it worth the work?"),
+      blank(),
+    ],
+  };
+}
+
 /** True when a doc is empty or only a blank paragraph — seed may apply. */
 export function isDocEmpty(content: DocJSON | null | undefined): boolean {
   if (!content || typeof content !== "object") return true;
