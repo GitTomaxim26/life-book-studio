@@ -14,9 +14,11 @@ function editionLine(begunAt: string | null): string {
 export default function Cover({
   book,
   onChange,
+  onOpen,
 }: {
   book: Book;
   onChange: (b: Book) => void;
+  onOpen: () => void;
 }) {
   const c = book.cover;
   const setCover = (patch: Partial<typeof c>) =>
@@ -54,7 +56,6 @@ export default function Cover({
           >
             {c.subtitle}
           </div>
-          {/* AI helper — wired to the Muse proxy in step 10 */}
           <button className="cover-spark" title="Let the Muse name the theme" disabled>
             ✦
           </button>
@@ -72,6 +73,12 @@ export default function Cover({
         </div>
 
         <div className="cover-colophon">{editionLine(c.begunAt)}</div>
+      </div>
+
+      <div className="cover-actions">
+        <button type="button" className="cover-begin" onClick={onOpen}>
+          Open the book →
+        </button>
       </div>
     </div>
   );

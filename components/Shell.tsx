@@ -7,6 +7,7 @@ import Sidebar from "./Sidebar";
 import Cover from "./Cover";
 import IdentityPage from "./IdentityPage";
 import MusePanel from "./MusePanel";
+import TopBar from "./TopBar";
 import { museModeFor, leafInfo } from "@/lib/structure";
 
 const BOOK_ID = "__book";
@@ -29,9 +30,8 @@ function UnwrittenChapter({ id }: { id: string }) {
 
 export default function Shell({ initialBook }: { initialBook: Book }) {
   const [book, setBook] = useState<Book>(initialBook);
-  const [active, setActive] = useState<string>(BOOK_ID); // "__book" or a leaf id
+  const [active, setActive] = useState<string>(BOOK_ID);
 
-  // The Paper (linen) edition adds `light` to <body>.
   useEffect(() => {
     document.body.classList.toggle("light", book.theme === "paper");
   }, [book.theme]);
@@ -40,37 +40,44 @@ export default function Shell({ initialBook }: { initialBook: Book }) {
     setBook((b) => ({ ...b, theme: b.theme === "night" ? "paper" : "night" }));
 
   return (
-    <div className="studio">
-      <aside className="rail">
-        <Sidebar
-          book={book}
-          active={active}
-          onSelect={setActive}
-          onOpenBook={() => setActive(BOOK_ID)}
-        />
-      </aside>
+    <div className="app-frame">
+      <TopBar active={active} />
+      <div className="studio">
+        <aside className="rail">
+          <Sidebar
+            book={book}
+            active={active}
+            onSelect={setActive}
+            onOpenBook={() => setActive(BOOK_ID)}
+          />
+        </aside>
 
-      <main className="center">
-        {active === BOOK_ID ? (
-          <Cover book={book} onChange={setBook} />
-        ) : active === "identity_now" ? (
-          <div className="center-inner">
-            <IdentityPage book={book} onChange={setBook} />
-          </div>
-        ) : (
-          <div className="center-inner">
-            <UnwrittenChapter id={active} />
-          </div>
-        )}
-      </main>
+        <main className="center">
+          {active === BOOK_ID ? (
+            <Cover
+              book={book}
+              onChange={setBook}
+              onOpen={() => setActive("identity_now")}
+            />
+          ) : active === "identity_now" ? (
+            <div className="center-inner">
+              <IdentityPage book={book} onChange={setBook} />
+            </div>
+          ) : (
+            <div className="center-inner">
+              <UnwrittenChapter id={active} />
+            </div>
+          )}
+        </main>
 
-      <aside className="muse">
-        <MusePanel
-          mode={active === BOOK_ID ? "weaver" : museModeFor(active)}
-          onToggleTheme={toggleTheme}
-          theme={book.theme}
-        />
-      </aside>
+        <aside className="muse">
+          <MusePanel
+            mode={active === BOOK_ID ? "weaver" : museModeFor(active)}
+            onToggleTheme={toggleTheme}
+            theme={book.theme}
+          />
+        </aside>
+      </div>
     </div>
   );
 }

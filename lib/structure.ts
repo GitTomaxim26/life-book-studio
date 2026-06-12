@@ -83,11 +83,8 @@ export const OUTLINE: PartDef[] = [
   {
     part: "IV",
     name: "Future",
-    children: [
-      { id: "new_identity", title: "New Identity", kind: "doc" },
-      // Focus Cycle + the 16 FUTURE_AREAS render between these two,
-      { id: "future_to_avoid", title: "Future To Avoid", kind: "doc" },
-    ],
+    children: [{ id: "new_identity", title: "New Identity", kind: "doc" }],
+    // Focus Cycle, 16 FUTURE_AREAS, and Future To Avoid render in Sidebar.tsx.
   },
   {
     part: "V",
@@ -119,5 +116,7 @@ export function leafInfo(
   }
   const area = FUTURE_AREAS.find((a) => a.id === id);
   if (area) return { partLabel: "Part IV · Future", title: area.title };
+  if (id === "future_to_avoid")
+    return { partLabel: "Part IV · Future", title: "Future To Avoid" };
   return null;
 }
