@@ -1,7 +1,9 @@
+"use client";
+
 // app/page.tsx
+import AuthGate from "@/components/AuthGate";
 import Shell from "@/components/Shell";
-import { mockBook } from "@/lib/mock";
 
 export default function Page() {
-  return <Shell initialBook={mockBook} />;
+  return <AuthGate render={(book) => <Shell initialBook={book} />} />;
 }

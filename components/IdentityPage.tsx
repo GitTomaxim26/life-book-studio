@@ -2,6 +2,7 @@
 
 import type { Book, DocJSON } from "@/lib/types";
 import { identitySeedContent } from "@/lib/seeds";
+import { useSaveSection } from "@/components/AuthGate";
 import Editor from "./Editor";
 
 export default function IdentityPage({
@@ -12,6 +13,7 @@ export default function IdentityPage({
   onChange: (b: Book) => void;
 }) {
   const doc = book.docs["identity_now"];
+  const save = useSaveSection();
 
   const update = (content: DocJSON, wordCount: number) => {
     onChange({
@@ -21,6 +23,8 @@ export default function IdentityPage({
         identity_now: { content, wordCount, updatedAt: new Date().toISOString() },
       },
     });
+    // Persist to Supabase (AuthGate debounces this ~700ms).
+    save("identity_now", "doc", content, wordCount);
   };
 
   return (

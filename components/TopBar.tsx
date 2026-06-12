@@ -2,6 +2,7 @@
 "use client";
 
 import { leafInfo } from "@/lib/structure";
+import SignOutButton from "./SignOutButton";
 
 const BOOK_ID = "__book";
 
@@ -20,6 +21,9 @@ export default function TopBar({ active }: { active: string }) {
           </>
         )}
       </nav>
+      <div className="topbar-right">
+        <SignOutButton />
+      </div>
     </header>
   );
 }

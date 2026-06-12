@@ -886,3 +886,114 @@ body.light .cover-stage::before {
 .cover-links span {
   color: var(--muted-2);
 }
+
+/* ===== Append to the END of app/globals.css ===== */
+/* Auth screens — book voice, works on the default (night) palette */
+
+.auth-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  color: var(--text);
+  padding: 24px;
+}
+.auth-card {
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+}
+.auth-mark {
+  color: var(--rose);
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+  opacity: 0.9;
+}
+.auth-mark svg {
+  width: 30px;
+  height: 30px;
+}
+.auth-title {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 28px;
+  margin: 0 0 14px;
+  color: var(--text);
+}
+.auth-lede {
+  font-family: var(--read);
+  font-style: italic;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 0 0 22px;
+}
+.auth-quiet {
+  font-family: var(--read);
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--muted);
+  margin: 0;
+}
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.auth-input {
+  font-family: var(--ui);
+  font-size: 15px;
+  padding: 13px 16px;
+  border-radius: 11px;
+  border: 1px solid var(--line-2);
+  background: var(--panel);
+  color: var(--text);
+  outline: none;
+}
+.auth-input:focus {
+  border-color: var(--rose);
+}
+.auth-btn {
+  font-family: var(--ui);
+  font-weight: 600;
+  font-size: 14px;
+  padding: 13px 16px;
+  border-radius: 11px;
+  border: none;
+  background: linear-gradient(135deg, var(--amber), var(--rose));
+  color: #1a1320;
+  cursor: pointer;
+  filter: saturate(0.9);
+  transition: 0.14s;
+}
+.auth-btn:hover:not(:disabled) {
+  filter: saturate(0.9) brightness(1.06);
+}
+.auth-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.auth-err {
+  font-family: var(--ui);
+  font-size: 13px;
+  color: #e0918f;
+  margin: 14px 0 0;
+}
+
+/* Sign out — quiet, lives in the top bar's right side */
+.signout-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-family: var(--ui);
+  font-size: 12.5px;
+  cursor: pointer;
+  transition: color 0.14s;
+}
+.signout-btn:hover {
+  color: var(--text-2);
+}
+
+.topbar-right{margin-left:auto;display:flex;align-items:center;}
