@@ -1,0 +1,1336 @@
+<!--
+  Life Book Studio — v5  ·  The Full Life Book (emotional-completion pass)
+  ----------------------------------------------------------------------------
+  ❤️ Full Life Book  — the book object: cover (title/subtitle/date/quote) + reading + export
+  PART I   🪞 Identity (Now)
+  PART II  📜 Past      — Life Epochs · Key Experiences
+  PART III ⚖️ Present   — Faults · Virtues
+  ── THE TURNING POINT ──
+  PART IV  🧭 Future    — 🧵 Threads of My Story (realization cards) → ✨ New Identity (gated by Threads)
+                          → areas (gated by New Identity, written as the new self) → Future To Avoid
+  PART V   ❤️ Life Vision  — the final future chapter (distinct from the Book object)
+
+  AI: Connect (Claude or ChatGPT); key stored only in this browser. Public hosting → use a proxy.
+-->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Spectral:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;450;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#141319;--bg-2:#19181f;--rail:#15141a;--surface:#1f1e26;--surface-2:#25232d;
+    --line:#2b2934;--line-2:#353341;--text:#ECEAF3;--text-2:#b6b2c4;--muted:#817d92;--muted-2:#5f5c70;
+    --amber:#e3a766;--amber-2:#f1c89c;--rose:#d4859a;--rose-2:#e3a6b6;
+    --green:#7fcf9a;--green-bg:rgba(127,207,154,.16);--green-line:rgba(127,207,154,.5);--del:#cf8a8a;--thread:#c9a6e0;
+    --active-bg:#2b2935;--active-ink:#ffffff;
+    --ui:"Inter",system-ui,sans-serif;--serif:"Fraunces",Georgia,serif;--read:"Spectral",Georgia,serif;--r:12px;
+    --rail-w:262px;--muse-w:356px;
+  }
+  *{box-sizing:border-box;} html,body{height:100%;margin:0;}
+  body{font-family:var(--ui);background:var(--bg);color:var(--text);overflow:hidden;-webkit-font-smoothing:antialiased;}
+  button{font-family:inherit;cursor:pointer;color:inherit;}
+  ::selection{background:rgba(227,167,102,.32);}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
+
+  .topbar{height:52px;display:flex;align-items:center;gap:12px;padding:0 14px;border-bottom:1px solid var(--line);background:var(--bg-2);position:relative;z-index:40;}
+  .crumb{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--muted);}
+  .crumb b{color:var(--text);font-family:var(--serif);font-weight:600;}
+  .crumb .sep{color:var(--muted-2);} .crumb .cur{color:var(--text-2);}
+  .top-sp{flex:1;}
+  .wc{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;}
+  .savei{font-size:12px;color:var(--muted-2);min-width:54px;text-align:right;} .savei.on{color:var(--amber);}
+  .tbtn{background:transparent;border:1px solid var(--line-2);color:var(--text-2);padding:7px 13px;border-radius:9px;font-size:12.5px;font-weight:500;transition:.15s;}
+  .tbtn:hover{border-color:var(--amber);color:var(--amber-2);}
+  .ptoggle{display:none;width:36px;height:36px;border-radius:9px;border:1px solid var(--line-2);background:transparent;color:var(--text-2);align-items:center;justify-content:center;}
+
+  .app{display:grid;grid-template-columns:var(--rail-w) 1fr var(--muse-w);height:calc(100vh - 52px);position:relative;transition:grid-template-columns .22s ease;}
+  .app.dragging{transition:none;cursor:col-resize;user-select:none;}
+  /* drag handles */
+  .resizer{position:absolute;top:0;bottom:0;width:9px;transform:translateX(-4px);cursor:col-resize;z-index:26;}
+  .resizer::after{content:"";position:absolute;top:0;bottom:0;left:4px;width:1px;background:transparent;transition:background .14s;}
+  .resizer:hover::after,.resizer.active::after{background:var(--amber);box-shadow:0 0 5px var(--amber);}
+  #rzRail{left:var(--rail-w);} #rzMuse{left:calc(100% - var(--muse-w));}
+  .app.rail-collapsed #rzRail,.app.muse-collapsed #rzMuse{display:none;}
+  /* collapsed mini rails */
+  .rail-mini,.muse-mini{display:none;flex-direction:column;align-items:center;gap:16px;padding:14px 0;height:100%;}
+  .app.rail-collapsed #rail>:not(.rail-mini){display:none!important;}
+  .app.rail-collapsed #rail{padding:0;overflow:hidden;}
+  .app.rail-collapsed .rail-mini{display:flex;cursor:pointer;}
+  .app.muse-collapsed #muse>:not(.muse-mini){display:none!important;}
+  .app.muse-collapsed #muse{padding:0;overflow:hidden;}
+  .app.muse-collapsed .muse-mini{display:flex;cursor:pointer;}
+  .mini-exp{width:30px;height:30px;border-radius:8px;border:1px solid var(--line-2);background:transparent;color:var(--text-2);display:flex;align-items:center;justify-content:center;}
+  .mini-exp:hover{border-color:var(--amber);color:var(--amber-2);}
+  .mini-exp svg{width:15px;height:15px;}
+  .mini-ico{color:var(--muted);opacity:.7;display:flex;}.mini-ico svg{width:17px;height:17px;}
+  .mini-cur{color:var(--amber-2);display:flex;}.mini-cur svg{width:16px;height:16px;}
+  .mini-orb{width:14px;height:14px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--amber-2),var(--rose));}
+  .mini-vert{writing-mode:vertical-rl;text-orientation:mixed;font-family:var(--serif);font-size:11px;letter-spacing:.18em;color:var(--muted-2);text-transform:uppercase;}
+  /* panel collapse buttons */
+  .panel-collapse{position:absolute;z-index:5;width:26px;height:26px;border-radius:7px;border:1px solid var(--line-2);background:var(--bg-2);color:var(--muted);display:flex;align-items:center;justify-content:center;transition:.14s;}
+  .panel-collapse:hover{border-color:var(--amber);color:var(--amber-2);}
+  .panel-collapse svg{width:14px;height:14px;}
+  #railCollapse{top:10px;right:8px;} #museCollapse{position:static;width:24px;height:24px;border:none;background:transparent;}
+  /* desktop topbar toggles */
+  .desk-tg{width:32px;height:32px;border-radius:8px;border:1px solid transparent;background:transparent;color:var(--muted);display:inline-flex;align-items:center;justify-content:center;transition:.14s;}
+  .desk-tg:hover{background:var(--surface-2);color:var(--text-2);}
+  .desk-tg.off{color:var(--amber-2);}
+  .desk-tg svg{width:17px;height:17px;}
+  .col{min-height:0;overflow-y:auto;}
+  .col::-webkit-scrollbar{width:10px;} .col::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:10px;border:3px solid transparent;background-clip:content-box;}
+
+  .rail{background:var(--rail);border-right:1px solid var(--line);padding:12px 10px 60px;}
+  .book-card{width:100%;text-align:left;display:flex;align-items:center;gap:11px;padding:10px 12px;margin-bottom:6px;border-radius:var(--r);
+    border:none;background:transparent;transition:.16s;}
+  .book-card:hover{background:var(--surface);} .book-card.active{background:var(--surface-2);}
+  .book-card .h{display:flex;align-items:center;color:var(--rose-2);opacity:.92;} .book-ico{width:19px;height:19px;}
+  .book-card b{font-family:var(--serif);font-weight:600;font-size:14px;display:block;color:var(--text);}
+  .book-card small{color:var(--muted);font-size:11px;}
+
+  .part{margin-top:24px;}
+  /* chapter rows (parts) */
+  .chapter{width:100%;display:grid;grid-template-columns:15px 17px 1fr;align-items:center;gap:9px;padding:9px 10px;background:transparent;border:none;border-radius:9px;text-align:left;transition:.13s;}
+  .chapter:hover{background:var(--surface);}
+  .chev{display:flex;align-items:center;justify-content:center;color:var(--muted-2);}
+  .chev-ic{width:13px;height:13px;transition:transform .2s;opacity:.6;}
+  .chapter.group.open .chev-ic{transform:rotate(90deg);}
+  .chapter.lead .chev{visibility:hidden;}
+  .chapter-ico{display:flex;align-items:center;justify-content:center;color:var(--muted);opacity:.5;transition:.13s;}
+  .nav-ico{width:15px;height:15px;}
+  .chapter-label{display:flex;flex-direction:column;line-height:1.14;min-width:0;}
+  .part-eyebrow{font-size:8px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted-2);font-weight:500;opacity:.48;margin-bottom:3px;}
+  .chapter-name{font-family:var(--serif);font-size:15px;font-weight:600;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .chapter.group .chapter-name{color:var(--text);}
+  .chapter.lead.done .chapter-name{color:var(--text);}
+  .chapter.lead.active{background:var(--active-bg);}
+  .chapter.lead.active .chapter-name{color:var(--active-ink);}
+  .chapter.lead.active .chapter-ico{color:var(--amber-2);opacity:1;}
+  /* child pages (text-only) */
+  .item{width:100%;display:flex;align-items:center;gap:9px;padding:8px 11px 8px 44px;background:transparent;border:none;border-radius:8px;text-align:left;color:var(--text-2);font-size:13px;transition:.12s;margin-bottom:2px;}
+  .item:hover{background:var(--surface);}
+  .item .nm{flex:1;}
+  .item.done{color:var(--text);}
+  .item .dot{width:5px;height:5px;border-radius:50%;background:var(--amber);opacity:0;}
+  .item.done .dot{opacity:.6;}
+  .item.locked{color:var(--muted-2);cursor:default;}
+  .item.locked:hover{background:transparent;}
+  .lock-ic{width:12px;height:12px;color:var(--muted-2);}
+  .item.locked .lock{opacity:0;transition:opacity .15s;}
+  .item.locked:hover .lock{opacity:.5;}
+  .locked-note{display:flex;align-items:center;gap:7px;padding:4px 11px 8px 44px;margin:2px 0 4px;font-size:11px;font-style:italic;font-family:var(--read);color:var(--muted-2);}
+  .lock-mini{width:12px;height:12px;opacity:.7;}
+  .item.active{background:var(--active-bg);color:var(--active-ink);font-weight:500;}
+  .item.active .nm{color:var(--active-ink);}
+  /* turning point */
+  .turning-div{display:flex;align-items:center;gap:8px;margin:24px 8px 12px;}.turning-div .l{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--thread));}
+  .turning-div .r{flex:1;height:1px;background:linear-gradient(90deg,var(--thread),transparent);}
+  .turning-div span{font-family:var(--serif);font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--thread);white-space:nowrap;}
+  /* threads — distinct but never louder than the active page */
+  .item.threads{padding:7px 10px;color:var(--thread);}
+  .item.threads .thread-ico{display:flex;align-items:center;color:var(--thread);}
+  .item.threads .nm{font-family:var(--serif);font-weight:600;font-size:14.5px;flex:0 0 auto;}
+  .item.threads:hover{background:rgba(201,166,224,.08);}
+  .item.threads.active{background:var(--active-bg);}
+  .item.threads.active .nm,.item.threads.active .thread-ico{color:var(--active-ink);}
+  /* future area groups */
+  .future-group{font-family:var(--ui);font-size:8px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted-2);opacity:.55;padding:0;margin:16px 0 5px 44px;}
+  .item.area{padding-top:6px;padding-bottom:6px;}
+  .item.area .nm{white-space:normal;line-height:1.32;}
+  /* focus cycle */
+  .focus-row{width:100%;display:flex;align-items:center;gap:9px;padding:8px 11px;margin:6px 0 8px;background:transparent;border:none;border-radius:9px;text-align:left;transition:.13s;}
+  .focus-row:hover{background:var(--surface);} .focus-row.active{background:var(--active-bg);}
+  .focus-ico{display:flex;color:var(--amber);opacity:.8;} .focus-ico svg{width:15px;height:15px;}
+  .focus-lbl{display:flex;flex-direction:column;font-family:var(--serif);font-size:13.5px;font-weight:600;color:var(--amber-2);line-height:1.2;}
+  .focus-lbl small{font-family:var(--ui);font-size:10px;font-weight:400;letter-spacing:.02em;color:var(--muted-2);margin-top:2px;}
+  .focus-row.active .focus-lbl,.focus-row.active .focus-lbl small{color:var(--active-ink);}
+  .item.area.dim{color:var(--muted-2);} .item.area.dim .dot{opacity:0;} .item.area.dim.done .dot{opacity:.35;}
+  .item.area.dim.active{color:var(--active-ink);}
+  .item.area.focus .dot{opacity:.9;background:var(--amber);}
+  .item.area.focus.active .dot{background:var(--active-ink);}
+  .focus-pick{max-width:560px;margin:0 auto;}
+  .future-group.fg-page{margin:24px 0 10px 0;opacity:.7;}
+  .focus-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:4px;}
+  .focus-chip{font-family:var(--ui);font-size:13px;color:var(--text-2);background:transparent;border:1px solid var(--line-2);border-radius:20px;padding:8px 14px;transition:.14s;}
+  .focus-chip:hover{border-color:var(--amber);color:var(--text);}
+  .focus-chip.on{background:linear-gradient(135deg,rgba(227,167,102,.18),rgba(212,133,154,.12));border-color:var(--amber);color:var(--amber-2);}
+  .focus-foot{max-width:560px;margin:32px auto 0;display:flex;align-items:center;justify-content:space-between;gap:14px;}
+  #focusCount{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums;}
+  .focus-history{max-width:560px;margin:0 auto 24px;}
+  .focus-history .fh-head{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted-2);opacity:.6;margin-bottom:8px;}
+  .fh-row{display:flex;gap:14px;align-items:baseline;padding:5px 0;}
+  .fh-c{font-family:var(--serif);font-size:12.5px;font-weight:600;color:var(--amber-2);min-width:62px;}
+  .fh-a{font-family:var(--read);font-style:italic;font-size:13.5px;color:var(--muted);line-height:1.5;}
+  .focus-complete-wrap{max-width:560px;margin:18px auto 0;text-align:center;}
+  .focus-complete{background:transparent;border:none;color:var(--muted);font-family:var(--ui);font-size:12.5px;transition:.14s;}
+  .focus-complete:hover{color:var(--amber-2);}
+  .cycle-done{max-width:520px;margin:8vh auto 0;text-align:center;animation:fadein .8s ease;}
+  .cd-eyebrow{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--amber-2);margin-bottom:20px;}
+  .cd-title{font-family:var(--serif);font-weight:600;font-size:30px;color:var(--text);margin:0 0 18px;}
+  .cd-rooms{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px;margin-bottom:24px;}
+  .cd-room{font-family:var(--read);font-style:italic;font-size:18px;color:var(--rose-2);}
+  .cd-dot{color:var(--muted-2);}
+  .cd-note{font-family:var(--read);font-size:16px;line-height:1.7;color:var(--muted);max-width:420px;margin:0 auto 28px;}
+  .cycle-done .cover-begin{font-family:var(--ui);}
+  /* the other path (Future To Avoid) */
+  .shadow-div{display:flex;align-items:center;gap:8px;margin:20px 8px 10px;}
+  .shadow-div .l{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--muted-2));opacity:.45;}
+  .shadow-div .r{flex:1;height:1px;background:linear-gradient(90deg,var(--muted-2),transparent);opacity:.45;}
+  .shadow-div span{font-family:var(--serif);font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted-2);white-space:nowrap;}
+  .item.shadow .nm{font-style:italic;}
+
+  .center{display:flex;flex-direction:column;background:var(--bg);}
+  .toolbar{display:flex;align-items:center;gap:3px;padding:7px 16px;border-bottom:1px solid var(--line);background:var(--bg-2);flex-wrap:wrap;}
+  .tool{height:30px;min-width:30px;padding:0 7px;border-radius:7px;border:1px solid transparent;background:transparent;color:var(--text-2);font-size:13px;display:inline-flex;align-items:center;justify-content:center;transition:.12s;}
+  .tool:hover{background:var(--surface-2);color:var(--text);} .tool.on{background:var(--surface-2);color:var(--amber-2);}
+  .tool b{font-weight:700;} .tool i{font-style:italic;} .tool u{text-decoration:underline;} .tool s{text-decoration:line-through;}
+  .tdiv{width:1px;height:18px;background:var(--line-2);margin:0 5px;}
+  .tsel{height:30px;border-radius:7px;border:1px solid var(--line-2);background:var(--surface);color:var(--text-2);font-size:12.5px;padding:0 8px;}
+  .ra{margin-left:auto;height:30px;padding:0 11px;border-radius:7px;border:1px solid var(--line-2);background:transparent;color:var(--text-2);font-size:12px;display:inline-flex;align-items:center;gap:6px;}
+  .ra:hover{border-color:var(--amber);color:var(--amber-2);} .ra.on{color:var(--rose-2);border-color:var(--rose);}
+
+  .scroll{flex:1;overflow-y:auto;display:flex;justify-content:center;padding:34px 28px 120px;}
+  .doc-wrap{width:100%;max-width:660px;}
+  .doc-head{margin-bottom:18px;}
+  .doc-head .eb{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--rose-2);font-weight:600;}
+  .doc-head h1{font-family:var(--serif);font-weight:600;font-size:30px;line-height:1.08;margin:7px 0 5px;}
+  .doc-head .lede{font-family:var(--read);font-style:italic;color:var(--muted);font-size:15.5px;margin:0;}
+
+  .editor{font-family:var(--read);font-size:17px;line-height:1.75;color:var(--text);min-height:46vh;}
+  .editor:focus{outline:none;}
+  .editor .prompt{font-family:var(--serif);font-weight:500;font-size:15px;color:var(--amber-2);margin:24px 0 6px;}
+  .editor h2{font-family:var(--serif);font-weight:600;font-size:22px;margin:28px 0 8px;}
+  .editor p{margin:0 0 14px;}
+  .editor blockquote{border-left:2px solid var(--rose);margin:14px 0;padding:2px 0 2px 16px;color:var(--text-2);font-style:italic;}
+  .editor ul,.editor ol{margin:0 0 14px;padding-left:24px;}
+
+  .sugg{position:relative;}
+  .sugg del{color:var(--del);text-decoration:line-through;opacity:.75;}
+  .sugg ins{background:var(--green-bg);border-bottom:1px solid var(--green-line);color:#dff6e7;text-decoration:none;border-radius:3px;}
+  .sugg.pending{opacity:.55;}
+  .sugg-ctrl{position:absolute;z-index:60;display:flex;gap:4px;background:var(--surface-2);border:1px solid var(--line-2);border-radius:9px;padding:4px;box-shadow:0 10px 30px -10px #000;}
+  .sugg-ctrl button{width:30px;height:26px;border-radius:6px;border:none;background:transparent;font-size:13px;}
+  .sugg-ctrl .ok{color:var(--green);} .sugg-ctrl .ok:hover{background:var(--green-bg);}
+  .sugg-ctrl .no{color:var(--rose-2);} .sugg-ctrl .no:hover{background:rgba(212,133,154,.16);}
+  .selpop{position:absolute;z-index:55;display:none;gap:2px;background:var(--surface-2);border:1px solid var(--line-2);border-radius:10px;padding:4px;box-shadow:0 12px 34px -12px #000;}
+  .selpop.show{display:flex;}
+  .selpop button{font-size:12px;color:var(--text-2);background:transparent;border:none;padding:6px 9px;border-radius:7px;white-space:nowrap;}
+  .selpop button:hover{background:var(--surface);color:var(--amber-2);}
+  .selpop .sp-div{width:1px;background:var(--line-2);margin:3px 1px;}
+
+  .doc-foot{display:flex;gap:9px;margin-top:40px;flex-wrap:wrap;}
+  .fbtn{font-size:12.5px;font-weight:500;padding:9px 15px;border-radius:9px;border:1px solid var(--line-2);background:var(--surface);color:var(--text-2);transition:.14s;}
+  .fbtn:hover{border-color:var(--amber);color:var(--text);}
+  .fbtn.pri{background:linear-gradient(135deg,var(--amber),var(--rose));color:#1a1320;border:none;font-weight:600;}
+  .fbtn.thread{background:linear-gradient(135deg,var(--thread),var(--rose));color:#1a1320;border:none;font-weight:600;}
+
+  /* epochs */
+  .epoch{background:transparent;border:none;border-radius:0;padding:4px 0;margin-bottom:16px;}
+  .epoch input.t{width:100%;background:transparent;border:none;color:var(--text);font-family:var(--serif);font-size:17px;font-weight:600;margin-bottom:6px;}
+  .epoch input.t:focus{outline:none;}
+  .epoch textarea{width:100%;min-height:70px;resize:vertical;background:#fbfaf710;border:1px solid var(--line);border-radius:8px;color:var(--text);font-family:var(--read);font-size:15.5px;line-height:1.65;padding:10px 12px;}
+  .epoch textarea:focus{outline:none;border-color:var(--amber);}
+  .epoch .del{float:right;font-size:11px;color:var(--muted-2);background:transparent;border:none;} .epoch .del:hover{color:var(--rose-2);}
+
+  /* traits */
+  .trait-chips{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 22px;}
+  .tchip{font-size:13px;color:var(--text-2);background:var(--surface);border:1px solid var(--line-2);padding:8px 13px;border-radius:20px;transition:.13s;}
+  .tchip:hover{border-color:var(--amber);} .tchip.sel{background:var(--surface-2);border-color:var(--amber);color:var(--amber-2);}
+  .rrow{display:flex;align-items:flex-start;gap:10px;background:transparent;border:none;border-radius:0;padding:4px 0;margin-bottom:12px;}
+  .rrow .rank{font-family:var(--serif);font-size:18px;color:var(--amber);min-width:22px;text-align:center;padding-top:4px;}
+  .rrow .body{flex:1;}
+  .rrow .name{font-family:var(--serif);font-size:16px;font-weight:600;margin-bottom:6px;}
+  .rrow textarea{width:100%;min-height:54px;resize:vertical;background:#fbfaf710;border:1px solid var(--line);border-radius:8px;color:var(--text);font-family:var(--read);font-size:15px;line-height:1.6;padding:9px 11px;}
+  .rrow textarea:focus{outline:none;border-color:var(--amber);}
+  .rrow .mv{display:flex;flex-direction:column;gap:3px;}
+  .rrow .mv button{width:24px;height:22px;border-radius:6px;border:1px solid var(--line-2);background:transparent;color:var(--muted);font-size:11px;}
+  .rrow .mv button:hover{color:var(--amber-2);border-color:var(--amber);}
+
+  /* threads cards */
+  .threads-intro{font-family:var(--read);color:var(--muted);font-size:15.5px;line-height:1.7;font-style:italic;margin:0 0 6px;}
+  .tcard{background:transparent;border:none;border-left:2px solid var(--thread);border-radius:0;padding:3px 0 3px 16px;margin-bottom:14px;font-family:var(--read);font-size:16px;line-height:1.6;color:var(--text);}
+  .tcard.repeat{border-left-color:var(--amber);}
+  .tcard .k{display:block;font-family:var(--ui);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2);margin-bottom:5px;}
+  .becoming{font-family:var(--serif);font-size:19px;color:var(--amber-2);margin:20px 0 8px;line-height:1.4;}
+
+  /* locked */
+  .locked-screen{text-align:center;max-width:420px;margin:8vh auto;}
+  .locked-screen .lk{font-size:30px;margin-bottom:14px;}
+  .locked-screen h2{font-family:var(--serif);font-size:22px;margin:0 0 10px;}
+  .locked-screen p{font-family:var(--read);color:var(--muted);font-size:15.5px;line-height:1.7;}
+
+  /* cover / book object */
+  /* ===== Cover — same book, two bindings ===== */
+  .cover-stage{position:relative;display:flex;justify-content:center;padding:4.5vh 0 12px;}
+  .cover-stage::before{content:"";position:absolute;top:47%;left:50%;width:700px;height:700px;max-width:130%;transform:translate(-50%,-50%);background:radial-gradient(ellipse at center,rgba(212,133,154,.12),rgba(227,167,102,.045) 42%,transparent 70%);filter:blur(16px);pointer-events:none;z-index:0;}
+  /* Night = velvet-bound edition — velvet expressed only through light behaviour, no texture */
+  .cover{
+    --cv-edge:rgba(188,170,212,.18); --cv-title:#fbf7ff; --cv-sub:#efb9c9; --cv-quote:#cfc7da;
+    --cv-faint:#a191b5; --cv-rule:rgba(255,255,255,.18); --cv-mark:var(--rose);
+    --cv-ph-title:#5e5474; --cv-ph-sub:#8a6a7a; --cv-spark:var(--amber-2);
+    --cv-shadow:0 50px 92px -36px rgba(0,0,0,.92),0 12px 30px -14px rgba(0,0,0,.5); --cv-inset:0 1px 0 rgba(228,214,246,.045) inset;
+    position:relative;z-index:1;max-width:600px;margin:0 auto 40px;
+    background:radial-gradient(150% 105% at 50% -22%,rgba(222,206,240,.08),transparent 60%),linear-gradient(180deg,transparent 38%,rgba(0,0,0,.22)),linear-gradient(162deg,#3a2856,#1a1230);
+    border:1px solid var(--cv-edge);border-radius:22px;padding:66px 58px 52px;
+    box-shadow:var(--cv-shadow),var(--cv-inset);text-align:center;}
+  /* Paper = linen-bound edition (warm cream cloth, dark typography) */
+  body.light .cover{
+    --cv-edge:rgba(150,120,80,.34); --cv-title:#2e2536; --cv-sub:#9a5466; --cv-quote:#5d5560;
+    --cv-faint:#9a8a6c; --cv-rule:rgba(90,70,45,.24); --cv-mark:#a85a72;
+    --cv-ph-title:#b4a587; --cv-ph-sub:#b39a86; --cv-spark:#94610f;
+    --cv-shadow:0 36px 64px -32px rgba(96,74,42,.42); --cv-inset:0 1px 0 rgba(255,255,255,.6) inset;
+    background:
+      radial-gradient(90% 75% at 35% 30%,rgba(255,250,240,.35),transparent 80%),
+      radial-gradient(120% 90% at 70% 100%,rgba(150,122,82,.05),transparent 70%),
+      radial-gradient(132% 84% at 50% -15%,rgba(255,255,255,.5),transparent 54%),
+      linear-gradient(165deg,#f1e8d6,#e3d7bd);}
+  body.light .cover-stage::before{background:radial-gradient(ellipse at center,rgba(176,144,92,.13),rgba(150,120,80,.05) 42%,transparent 70%);}
+  .cover-eyebrow{font-family:var(--ui);font-size:10px;letter-spacing:.36em;text-transform:uppercase;color:var(--cv-faint);margin-bottom:26px;}
+  .cover-mark{color:var(--cv-mark);display:flex;justify-content:center;margin-bottom:24px;opacity:.9;}
+  .cover-mark svg{width:35px;height:35px;}
+  .cover-title{font-family:var(--serif);font-weight:600;font-size:41px;line-height:1.08;letter-spacing:-.01em;color:var(--cv-title);outline:none;min-height:48px;}
+  .cover-title:empty:before{content:attr(data-ph);color:var(--cv-ph-title);}
+  .cover-sub-row{position:relative;margin-top:16px;display:flex;justify-content:center;}
+  .cover-sub{font-family:var(--read);font-style:italic;font-size:24px;line-height:1.4;color:var(--cv-sub);outline:none;max-width:92%;min-height:31px;}
+  .cover-sub:empty:before{content:attr(data-ph);color:var(--cv-ph-sub);}
+  .cover-sub.thinking,.cover-quote.thinking{opacity:.4;}
+  .cover-spark{position:absolute;right:-4px;top:50%;transform:translateY(-50%);opacity:0;background:transparent;border:none;color:var(--cv-spark);font-size:14px;transition:opacity .15s;cursor:pointer;}
+  .cover-sub-row:hover .cover-spark,.cover-quote-row:hover .cover-spark{opacity:.7;}
+  .cover-spark:hover{opacity:1!important;}
+  .cover-rule{width:54px;height:1px;background:var(--cv-rule);margin:32px auto;}
+  .cover-quote-row{position:relative;display:flex;justify-content:center;}
+  .cover-quote{font-family:var(--read);font-style:italic;font-size:19px;line-height:1.62;color:var(--cv-quote);max-width:380px;margin:0 auto;min-height:24px;}
+  .cover-quote.empty{color:var(--cv-ph-sub);cursor:pointer;font-size:17px;}
+  .cover-quote.empty:hover{opacity:.78;}
+  .cover-colophon{font-family:var(--ui);font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--cv-faint);margin-top:36px;}
+  .cover-actions{display:flex;flex-direction:column;align-items:center;gap:15px;margin-bottom:30px;}
+  .cover-begin{background:linear-gradient(135deg,var(--amber),var(--rose));color:#1a1320;border:none;border-radius:11px;padding:12px 30px;font-weight:600;font-size:13.5px;font-family:var(--ui);filter:saturate(.9);transition:.14s;}
+  .cover-begin:hover{filter:saturate(.9) brightness(1.06);}
+  .cover-links{display:flex;align-items:center;gap:11px;}
+  .cover-links button{background:transparent;border:none;color:var(--muted);font-family:var(--ui);font-size:12.5px;transition:.14s;}
+  .cover-links button:hover{color:var(--text-2);}
+  .cover-links span{color:var(--muted-2);}
+  .reading{max-width:600px;margin:10px auto 0;font-family:var(--read);}
+  /* ===== Reader ===== */
+  .reader{max-width:640px;margin:0 auto;}
+  .reader-bar{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;padding:10px 0 12px;margin-bottom:6px;background:linear-gradient(var(--bg),var(--bg) 72%,transparent);}
+  .r-close,.r-toc{font-size:12.5px;background:transparent;border:1px solid var(--line-2);color:var(--text-2);border-radius:8px;padding:6px 12px;transition:.14s;}
+  .r-close:hover,.r-toc:hover{border-color:var(--amber);color:var(--amber-2);}
+  .r-title{flex:1;text-align:center;font-family:var(--serif);font-size:14px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .r-titlepage{text-align:center;padding:9vh 0 7vh;}
+  .r-titlepage .r-eyebrow{font-size:10px;letter-spacing:.32em;text-transform:uppercase;color:var(--rose-2);opacity:.85;margin-bottom:22px;}
+  .r-booktitle{font-family:var(--serif);font-weight:600;font-size:40px;line-height:1.08;margin:0 0 12px;color:var(--text);}
+  .r-booksub{font-family:var(--read);font-style:italic;font-size:18px;color:var(--rose-2);margin-bottom:24px;}
+  .r-epigraph{font-family:var(--read);font-style:italic;font-size:17px;color:var(--text-2);max-width:400px;margin:0 auto;padding-top:22px;border-top:1px solid var(--line);}
+  .r-begun{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted-2);margin-top:28px;}
+  .r-toc-page{padding:32px 0 8px;border-top:1px solid var(--line);}
+  .r-toc-head{font-family:var(--serif);font-size:20px;color:var(--rose-2);margin-bottom:14px;}
+  .r-toc-part{font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted-2);opacity:.7;margin:16px 0 6px;}
+  .r-toc-item{display:block;width:100%;text-align:left;background:transparent;border:none;color:var(--text-2);font-family:var(--read);font-size:16px;padding:5px 0;transition:.13s;}
+  .r-toc-item:hover{color:var(--amber-2);padding-left:6px;}
+  .r-partdiv{text-align:center;padding:66px 0 18px;}
+  .r-partdiv span{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--muted-2);}
+  .r-partdiv h2{font-family:var(--serif);font-weight:600;font-size:30px;margin:8px 0 0;color:var(--text);}
+  .r-chapter{padding-top:36px;}
+  .r-chtitle{font-family:var(--serif);font-weight:600;font-size:24px;color:var(--rose-2);margin:0 0 14px;}
+  .r-body{font-family:var(--read);font-size:17.5px;line-height:1.82;color:var(--text);}
+  .r-body>p:first-child::first-letter{font-family:var(--serif);font-weight:600;font-size:52px;float:left;line-height:.78;padding:8px 9px 0 0;color:var(--rose-2);}
+  .r-body p{margin:0 0 16px;}
+  .r-sub{font-family:var(--serif);font-size:17px;color:var(--text);margin:22px 0 6px;}
+  .r-traits{padding-left:22px;color:var(--text);} .r-traits li{margin:0 0 9px;font-family:var(--read);font-size:16.5px;} .r-trait-w{font-weight:600;color:var(--rose-2);}
+  .r-thread{border-left:2px solid var(--thread);padding-left:15px;font-style:italic;color:var(--text-2);margin:0 0 12px;font-family:var(--read);font-size:16.5px;}
+  .r-becoming{font-family:var(--serif);font-size:19px;color:var(--amber-2);margin:16px 0;}
+  .r-closing{text-align:center;padding:72px 0 50px;font-family:var(--read);font-style:italic;color:var(--muted);}
+  .r-rule{width:44px;height:1px;background:var(--line-2);margin:0 auto 22px;}
+  .r-empty{text-align:center;color:var(--muted);font-family:var(--read);font-style:italic;font-size:16px;padding:13vh 20px;line-height:1.7;}
+  .r-gather{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:58vh;gap:18px;animation:fadein .5s ease;}
+  .r-gather-mark{color:var(--rose-2);opacity:.7;} .r-gather-mark svg{width:34px;height:34px;}
+  .r-gather-txt{font-family:var(--read);font-style:italic;color:var(--muted);font-size:16px;letter-spacing:.02em;}
+  .reading h2{font-family:var(--serif);color:var(--rose-2);font-size:20px;margin:26px 0 8px;}
+  .reading p{font-size:16px;line-height:1.7;color:var(--text);margin:0 0 12px;white-space:pre-wrap;}
+
+  /* muse */
+  .muse{background:var(--bg-2);border-left:1px solid var(--line);display:flex;flex-direction:column;position:relative;}
+  .mhead{padding:14px 16px;border-bottom:1px solid var(--line);}
+  .mhead-top{display:flex;align-items:center;gap:8px;} .mhead-top b{flex:1;font-family:var(--serif);font-size:14px;font-weight:500;color:var(--text-2);display:flex;align-items:center;gap:8px;}
+  .mhead .orb{width:7px;height:7px;border-radius:50%;background:var(--rose);opacity:.6;}
+  .mhead small{display:block;color:var(--muted-2);font-size:11.5px;margin-top:5px;}
+  .connect{font-size:11px;border:1px solid var(--line-2);background:var(--surface);color:var(--text-2);padding:5px 11px;border-radius:8px;transition:.14s;}
+  .connect:hover{border-color:var(--amber);color:var(--amber-2);} .connect.ok{border-color:var(--green-line);color:var(--green);}
+  .cfgpop{display:none;position:absolute;top:48px;left:12px;right:12px;z-index:50;background:var(--surface-2);border:1px solid var(--line-2);border-radius:12px;padding:13px;box-shadow:0 18px 40px -16px #000;}
+  .cfgpop.show{display:block;}
+  .cfgpop label{display:block;font-size:11px;color:var(--muted);margin:8px 0 4px;}
+  .cfgpop input{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:8px;color:var(--text);font-size:12.5px;padding:8px 10px;font-family:var(--ui);}
+  .cfgpop input:focus{outline:none;border-color:var(--amber);}
+  .seg{display:flex;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:3px;}
+  .seg button{flex:1;font-size:12px;color:var(--text-2);background:transparent;border:none;padding:7px;border-radius:7px;}
+  .seg button.on{background:var(--surface-2);color:var(--amber-2);box-shadow:0 0 0 1px var(--line-2) inset;}
+  .cfg-actions{margin-top:11px;} .cfg-actions button{width:100%;background:linear-gradient(135deg,var(--amber),var(--rose));color:#1a1320;border:none;border-radius:8px;padding:9px;font-weight:600;font-size:12.5px;}
+  .cfg-note{font-size:10.5px;color:var(--muted-2);line-height:1.5;margin:10px 0 0;}
+  .qrow{display:flex;flex-wrap:wrap;gap:5px;padding:10px 14px;}
+  .chip{font-size:11.5px;color:var(--muted);background:transparent;border:none;padding:5px 9px;border-radius:8px;transition:.14s;}
+  .chip:hover{background:var(--surface);color:var(--amber-2);} .chip.rev{color:var(--thread);opacity:.85;}
+  .mlog{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:14px;}
+  .mempty{color:var(--muted-2);font-size:12.5px;font-style:italic;text-align:center;margin-top:24px;line-height:1.7;}
+  .card{border-radius:12px;padding:11px 12px;font-size:13px;line-height:1.64;white-space:pre-wrap;}
+  .card.u{background:var(--surface-2);border:none;color:var(--text-2);align-self:flex-end;max-width:88%;}
+  .card.m{background:transparent;border:none;padding:2px 0;color:var(--text-2);} .card.m.think{color:var(--muted);font-style:italic;}
+  .acts{display:flex;gap:12px;margin-top:9px;flex-wrap:wrap;}
+  .acts button{font-size:11px;color:var(--muted-2);background:transparent;border:none;padding:0;transition:.14s;}
+  .acts button:hover{color:var(--amber-2);}
+  .minput{padding:11px;border-top:1px solid var(--line);display:flex;gap:7px;}
+  .minput textarea{flex:1;resize:none;height:40px;max-height:120px;font-family:var(--ui);font-size:13px;color:var(--text);background:var(--surface);border:1px solid var(--line-2);border-radius:10px;padding:11px 12px;}
+  .minput textarea:focus{border-color:var(--amber);}
+  .minput .snd{width:40px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--amber),var(--rose));color:#1a1320;font-size:15px;font-weight:700;}
+
+  /* reveal */
+  .reveal{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;background:rgba(14,12,19,.9);backdrop-filter:blur(10px);}
+  .reveal.show{display:flex;animation:fadein 1s ease;}
+  @keyframes fadein{from{opacity:0}to{opacity:1}}
+  .reveal .inner{max-width:480px;text-align:center;padding:30px;}
+  .reveal .eb{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--amber-2);margin-bottom:20px;}
+  .reveal .line{font-family:var(--serif);font-size:26px;line-height:1.35;color:var(--text);margin-bottom:30px;}
+  .reveal button{background:linear-gradient(135deg,var(--amber),var(--rose));color:#1a1320;border:none;border-radius:11px;padding:12px 24px;font-weight:600;font-size:14px;}
+  .reveal .skip{display:block;margin:16px auto 0;background:transparent;border:none;color:var(--muted-2);font-size:12px;}
+
+  .scrim{display:none;position:fixed;inset:52px 0 0;background:rgba(8,7,11,.6);z-index:30;}
+  /* account button + hub */
+  .acct{width:30px;height:30px;border-radius:50%;border:1px solid var(--line-2);background:transparent;color:var(--text-2);display:inline-flex;align-items:center;justify-content:center;transition:.15s;}
+  .acct svg{width:17px;height:17px;}
+  .acct:hover{border-color:var(--amber);color:var(--amber-2);} .acct.ok{border-color:var(--green-line);color:var(--green);}
+  .acctpop{display:none;position:fixed;top:56px;right:14px;width:304px;z-index:60;background:var(--surface-2);border:1px solid var(--line-2);border-radius:14px;padding:14px;box-shadow:0 24px 54px -20px #000;max-height:84vh;overflow-y:auto;}
+  .acctpop.show{display:block;}
+  .acct-h{font-family:var(--serif);font-size:15px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:7px;}
+  .acct-sec{border-top:1px solid var(--line);padding:11px 0 5px;}
+  .acct-sec:first-of-type{border-top:none;padding-top:2px;}
+  .acct-lab{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2);margin-bottom:8px;}
+  .acctpop input{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:8px;color:var(--text);font-size:12.5px;padding:8px 10px;font-family:var(--ui);margin-top:6px;}
+  .acctpop input:focus{outline:none;border-color:var(--amber);}
+  .acct-save{width:100%;margin-top:9px;background:linear-gradient(135deg,var(--amber),var(--rose));color:#1a1320;border:none;border-radius:8px;padding:9px;font-weight:600;font-size:12.5px;}
+  .acct-export{width:100%;background:var(--surface);border:1px solid var(--line-2);color:var(--text-2);border-radius:8px;padding:9px;font-size:12.5px;}
+  .acct-export:hover{border-color:var(--amber);color:var(--text);}
+  .usage{display:flex;flex-direction:column;gap:8px;}
+  .urow{display:grid;grid-template-columns:84px 1fr 40px;align-items:center;gap:9px;font-size:11.5px;color:var(--text-2);}
+  .ubar{height:5px;border-radius:3px;background:var(--surface);overflow:hidden;}
+  .ubar i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,var(--amber),var(--rose));}
+  .uw{font-size:9.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted-2);text-align:right;}
+
+  /* progress under book card */
+  .progress{padding:0 8px 12px;margin-bottom:2px;}
+  .progress-top{display:flex;justify-content:flex-end;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2);margin-bottom:5px;opacity:.7;}
+  .progress-top b{color:var(--muted);font-weight:600;font-variant-numeric:tabular-nums;}
+  .progress-track{height:3px;border-radius:3px;background:var(--surface-2);overflow:hidden;}
+  .progress-fill{height:100%;width:0;border-radius:4px;background:linear-gradient(90deg,var(--amber),var(--rose));transition:width .55s cubic-bezier(.2,.7,.3,1);}
+
+  /* onboarding */
+  .onboard{position:fixed;inset:0;z-index:90;display:none;align-items:center;justify-content:center;background:rgba(11,9,15,.88);backdrop-filter:blur(10px);padding:20px;}
+  .onboard.show{display:flex;animation:fadein .7s ease;}
+  .ob-card{max-width:438px;background:linear-gradient(160deg,#221b30,#17131f);border:1px solid var(--line-2);border-radius:18px;padding:30px;text-align:center;box-shadow:0 34px 74px -30px #000;}
+  .ob-card .ob-h{font-size:34px;filter:drop-shadow(0 0 14px var(--rose));}
+  .ob-card h2{font-family:var(--serif);font-size:23px;margin:12px 0 10px;color:#f0ecf5;}
+  .ob-card p{font-family:var(--read);font-size:15px;line-height:1.65;color:#c7c1d4;margin:0 0 12px;}
+  .ob-card .ob-note{font-family:var(--ui);font-size:12.5px;background:rgba(255,255,255,.05);border:1px solid var(--line-2);border-radius:11px;padding:12px 14px;color:#b6b0c4;text-align:left;}
+  .ob-card .ob-note b{color:var(--amber-2);}
+  .ob-actions{display:flex;flex-direction:column;gap:9px;margin-top:18px;}
+  .ob-go{background:linear-gradient(135deg,var(--amber),var(--rose));color:#1a1320;border:none;border-radius:11px;padding:13px;font-weight:600;font-size:14px;}
+  .ob-skip{background:transparent;border:none;color:var(--muted-2);font-size:12.5px;}
+
+  /* ===== LIGHT · warm paper ===== */
+  body.light{
+    --bg:#f6f1e7;--bg-2:#efe9db;--rail:#eee7d7;--surface:#fdfaf2;--surface-2:#f2ebdc;
+    --line:#e5ddca;--line-2:#d9cfb8;--text:#2c2535;--text-2:#5d566a;--muted:#8a8194;--muted-2:#b0a79c;
+    --amber:#bd7d31;--amber-2:#94610f;--rose:#bb6076;--rose-2:#9c4e64;
+    --green:#3f9b63;--green-bg:rgba(63,155,99,.14);--green-line:rgba(63,155,99,.5);--del:#b15656;--thread:#7d52a6;
+    --active-bg:#ece0c8;--active-ink:#241f2e;
+  }
+  body.light .reveal{background:rgba(28,22,18,.9);} body.light .reveal .line{color:#f3eee5;}
+  body.light .editor .sugg ins{color:#1f5c39;}
+
+  @media (max-width:980px){
+    .app{grid-template-columns:1fr;} .ptoggle{display:inline-flex;} .wc{display:none;}
+    .resizer,.desk-tg{display:none!important;}
+    .acctpop{right:8px;left:8px;width:auto;}
+    .rail,.muse{position:fixed;top:52px;bottom:0;z-index:35;transition:transform .24s;}
+    .rail{left:0;width:286px;transform:translateX(-106%);} .muse{right:0;width:330px;transform:translateX(106%);}
+    .rail.open,.muse.open{transform:translateX(0);} .scrim.show{display:block;}
+    .scroll{padding:22px 16px 120px;}
+  }
+</style>
+
+<div class="topbar">
+  <button class="ptoggle" id="tgRail">☰</button>
+  <button class="desk-tg" id="deskRail" title="Toggle sidebar (⌘/ or Ctrl+/)"></button>
+  <div class="crumb"><b>Full Life Book</b><span class="sep">/</span><span class="cur" id="crumbCur">—</span></div>
+  <div class="top-sp"></div>
+  <span class="wc" id="wc"></span>
+  <span class="savei" id="savei">Saved</span>
+  <button class="acct" id="acctBtn" title="Muse Account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/></svg></button>
+  <button class="desk-tg" id="deskMuse" title="Toggle Muse (⌘. or Ctrl+.)"></button>
+  <button class="ptoggle" id="tgMuse">✦</button>
+</div>
+
+<div class="acctpop" id="acctpop">
+  <div class="acct-h">○ Muse Account</div>
+  <div class="acct-sec">
+    <div class="acct-lab">Appearance</div>
+    <div class="seg" id="themeSeg"><button type="button" data-t="dark">🌙 Night</button><button type="button" data-t="light">📖 Paper</button></div>
+  </div>
+  <div class="acct-sec">
+    <div class="acct-lab">AI Provider</div>
+    <div class="seg" id="provSeg"><button type="button" data-p="anthropic">Claude</button><button type="button" data-p="openai">ChatGPT</button></div>
+    <input id="cfgKey" type="password" placeholder="API key — sk-…" autocomplete="off">
+    <input id="cfgModel" type="text" placeholder="model">
+    <button class="acct-save" id="cfgSave">Save &amp; connect</button>
+    <p class="cfg-note">Stored only in this browser, sent only to the provider you choose. Public hosting → use a server proxy.</p>
+  </div>
+  <div class="acct-sec">
+    <div class="acct-lab">What the Muse costs</div>
+    <div class="usage">
+      <div class="urow"><span>Ask Muse</span><span class="ubar"><i style="width:22%"></i></span><span class="uw">light</span></div>
+      <div class="urow"><span>Pull a line</span><span class="ubar"><i style="width:20%"></i></span><span class="uw">light</span></div>
+      <div class="urow"><span>Review pass</span><span class="ubar"><i style="width:55%"></i></span><span class="uw">med</span></div>
+      <div class="urow"><span>Future letter</span><span class="ubar"><i style="width:62%"></i></span><span class="uw">med</span></div>
+      <div class="urow"><span>Threads weave</span><span class="ubar"><i style="width:100%"></i></span><span class="uw">heavy</span></div>
+    </div>
+    <p class="cfg-note">You're on your own AI key — usage is billed by your provider, not us. A real credit balance &amp; account arrive with the hosted version.</p>
+  </div>
+  <div class="acct-sec">
+    <div class="acct-lab">Export</div>
+    <button class="acct-export" id="acctExport">Export my book (.md)</button>
+  </div>
+</div>
+
+<div class="app">
+  <aside class="col rail" id="rail">
+    <button class="book-card" id="bookCard"><span class="h"><svg class="book-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span><span><b>Full Life Book</b><small id="bookSub">Your story, past to future</small></span></button>
+    <div class="progress" id="progress">
+      <div class="progress-top"><b id="progPct">0%</b></div>
+      <div class="progress-track"><div class="progress-fill" id="progFill"></div></div>
+    </div>
+    <div id="railParts"></div>
+    <div class="rail-mini" id="railMini" title="Expand sidebar">
+      <button class="mini-exp" id="railExpand" title="Expand sidebar (⌘/)"></button>
+      <span class="mini-ico" id="railMiniBook"></span>
+      <span class="mini-cur" id="railMiniCur"></span>
+    </div>
+  </aside>
+
+  <main class="col center">
+    <div class="toolbar" id="toolbar">
+      <select class="tsel" id="blockSel"><option value="p">Body</option><option value="h2">Heading</option><option value="blockquote">Quote</option></select>
+      <span class="tdiv"></span>
+      <button class="tool" data-cmd="bold"><b>B</b></button><button class="tool" data-cmd="italic"><i>I</i></button>
+      <button class="tool" data-cmd="underline"><u>U</u></button><button class="tool" data-cmd="strikeThrough"><s>S</s></button>
+      <span class="tdiv"></span>
+      <button class="tool" data-cmd="insertUnorderedList">•—</button><button class="tool" data-cmd="insertOrderedList">1.</button>
+      <span class="tdiv"></span>
+      <button class="tool" data-cmd="undo">↺</button><button class="tool" data-cmd="redo">↻</button>
+      <button class="ra" id="raBtn">▶ Read aloud</button>
+    </div>
+    <div class="scroll" id="scroll"><div class="doc-wrap" id="docWrap"></div></div>
+    <div class="selpop" id="selpop">
+      <button data-sel="improve">Improve</button><button data-sel="future">Future self</button><button data-sel="vivid">Vivid</button>
+      <span class="sp-div"></span><button data-sel="ask">Ask…</button>
+    </div>
+  </main>
+
+  <aside class="col muse" id="muse">
+    <div class="mhead">
+      <div class="mhead-top"><b><span class="orb"></span> Muse</b><button class="connect" id="connectBtn">Connect</button><button class="panel-collapse" id="museCollapse" title="Collapse Muse (⌘.)"></button></div>
+      <small id="mctx">—</small>
+    </div>
+    <div class="qrow" id="qrow"></div>
+    <div class="mlog" id="mlog"><div class="mempty">Highlight any line for inline edits,<br>or ask the Muse — it knows your whole book.</div></div>
+    <div class="minput"><textarea id="mInput" placeholder="Ask the Muse…" rows="1"></textarea><button class="snd" id="mSend">↑</button></div>
+    <div class="muse-mini" id="museMini" title="Expand Muse">
+      <button class="mini-exp" id="museExpand" title="Expand Muse (⌘.)"></button>
+      <span class="mini-orb"></span>
+      <span class="mini-vert">Muse</span>
+    </div>
+  </aside>
+  <div class="resizer" id="rzRail" title="Drag to resize"></div>
+  <div class="resizer" id="rzMuse" title="Drag to resize"></div>
+</div>
+<div class="scrim" id="scrim"></div>
+
+<div class="reveal" id="reveal"><div class="inner">
+  <div class="eb">You seem ready to become…</div>
+  <div class="line" id="revealLine"></div>
+  <button id="revealGo">Meet your new self →</button>
+  <button class="skip" id="revealSkip">not yet</button>
+</div></div>
+
+<div class="onboard" id="onboard"><div class="ob-card">
+  <div class="ob-h">❤️</div>
+  <h2>Welcome to your Full Life Book</h2>
+  <p>You'll write your story — who you are, where you've been, and who you're becoming. A guide called the <b>Muse</b> reads everything you write and works alongside you.</p>
+  <p class="ob-note">The Muse runs on <b>your own AI account</b> — Claude or ChatGPT. Connect it once and it comes alive. Your key stays in this browser and is sent only to that provider; nothing else leaves your device.</p>
+  <div class="ob-actions">
+    <button class="ob-go" id="obConnect">Connect my AI →</button>
+    <button class="ob-skip" id="obSkip">I'll explore first</button>
+  </div>
+</div></div>
+
+<script>
+/* ===================== BOOK MODEL ===================== */
+const FAREAS=[
+  {id:"f_spirit",title:"Spiritual Life & Self-Development",group:"Inner World"},
+  {id:"f_emotion",title:"Emotional Life & Environment",group:"Inner World"},
+  {id:"f_intellect",title:"Intellectual Life & Traits",group:"Inner World"},
+  {id:"f_character",title:"Personality, Character & Appearance",group:"Inner World"},
+  {id:"f_health",title:"Health & Wellbeing",group:"Body & Physical Life",hint:"sleep, nutrition, energy, mental wellbeing, longevity"},
+  {id:"f_fitness",title:"Fitness",group:"Body & Physical Life",hint:"strength, body composition, athleticism, mobility, performance"},
+  {id:"f_environment",title:"Physical & Living Environment",group:"Body & Physical Life"},
+  {id:"f_work",title:"Work Life",group:"Work & Wealth"},
+  {id:"f_business",title:"Business",group:"Work & Wealth"},
+  {id:"f_finance",title:"Financial Life",group:"Work & Wealth"},
+  {id:"f_social",title:"Social Life & Community",group:"Relationships & Community"},
+  {id:"f_relationships",title:"Relationships",group:"Relationships & Community"},
+  {id:"f_family",title:"Parenting & Family Dynamics",group:"Relationships & Community"},
+  {id:"f_quality",title:"Quality of Life",group:"Lifestyle & Experience"},
+  {id:"f_lifestyle",title:"Lifestyle & Experiences",group:"Lifestyle & Experience"},
+  {id:"f_purpose",title:"Purpose, Legacy & Making a Difference",group:"Purpose & Impact"},
+];
+const BOOK=[
+  {part:"I",ico:"🪞",name:"Identity (Now)",lead:{id:"identity_now",type:"doc"}},
+  {part:"II",ico:"📜",name:"Past",children:[
+    {id:"epochs",ico:"🕰️",title:"Life Epochs",type:"epochs"},
+    {id:"key_exp",ico:"⭐",title:"Key Experiences",type:"doc"}]},
+  {part:"III",ico:"⚖️",name:"Present",children:[
+    {id:"faults",ico:"🌑",title:"Faults",type:"traits"},
+    {id:"virtues",ico:"🌟",title:"Virtues",type:"traits"}]},
+  {part:"IV",ico:"🧭",name:"Future",children:[
+    {id:"threads",title:"Threads of My Story",type:"threads",turning:true},
+    {id:"new_identity",title:"New Identity",type:"doc",gated:true,gateBy:"threads"},
+    ...FAREAS.map(a=>({...a,type:"doc",gated:true,gateBy:"identity"})),
+    {id:"future_to_avoid",title:"Future To Avoid",type:"doc",gated:true,gateBy:"identity",shadow:true}]},
+  {part:"V",ico:"❤️",name:"Life Vision",lead:{id:"vision",type:"vision"}},
+];
+const PROMPTS={
+  identity_now:["Who do you most admire — and what do they have that you want?","Who is the person you're determined not to become?","What three things matter most to you, beneath everything else?","What do you believe about how life works?"],
+  key_exp:["What are the experiences that shaped you most — the high points and the low ones?","For each: was it good or bad, and how did it change you?","How did it change the way you see other people?","Looking back, what would you have done differently?"],
+  new_identity:["Describe the person you are becoming — as if they're already here.","What does this person believe that the old you didn't?","How does this person meet fear, doubt, or setbacks?","What do they do, every day, that makes them who they are?"],
+  future_to_avoid:["If nothing changes — if your worst habits simply win — where do you end up in five years?","What does an ordinary day in that life feel like?","What did you keep avoiding until it was too late?","Say it plainly. Let it scare you a little."],
+};
+const LEDES={identity_now:"The lens the whole book is written through. Who is holding the pen?",key_exp:"The moments that made you. Not to relive them — to understand them.",new_identity:"The Future begins here. Before you design a future, you define the person who can live it.",future_to_avoid:"The other path — the one your worst habits would write. Name it, so you can choose against it.",vision:"Your future, woven into one chapter."};
+const FAULT_WORDS=["Avoidant","Impatient","Defensive","Anxious","Critical","Procrastinating","Distracted","Stubborn","Withdrawn","Impulsive","People-pleasing","Cynical","Disorganized","Conflict-averse","Self-doubting","Controlling","Restless","Guarded"];
+const VIRTUE_WORDS=["Curious","Loyal","Creative","Disciplined","Compassionate","Courageous","Honest","Resilient","Generous","Patient","Visionary","Playful","Grounded","Determined","Open-minded","Warm","Thoughtful","Steady"];
+const STOP=new Set("the a an and or but if then to of in on at for with from by as is are was were be been being it its this that these those i me my we our us you your he she they them his her their not no do does did have has had will would can could should there here what when where who how why about into over under out up off down so just very really much more most some any all also him out get got because had has into your you're i'm don't didn't doesn't was were what's it's they're we're".split(/\s+/));
+
+/* ===================== STATE ===================== */
+const SKEY="crc_lifebook_v5";
+let state={docs:{},epochs:null,traits:{faults:{sel:[],notes:{}},virtues:{sel:[],notes:{}}},threads:{repeats:[],insights:[],becoming:""},cover:{title:"",subtitle:"",quote:""},futureFocus:[],focusCycle:1,focusHistory:[]};
+let ui={parts:{}}; BOOK.forEach(p=>ui.parts[p.part]=true);
+let current="identity_now";
+
+const Store={
+  async load(){ try{ if(window.storage?.get){const r=await window.storage.get(SKEY); if(r&&r.value)return JSON.parse(r.value); return null;} }catch(e){} try{ if(window.localStorage){const v=localStorage.getItem(SKEY); if(v)return JSON.parse(v);} }catch(e){} return null; },
+  async save(d){ const s=JSON.stringify(d); try{ if(window.storage?.set){await window.storage.set(SKEY,s);return;} }catch(e){console.error(e);} try{ if(window.localStorage)localStorage.setItem(SKEY,s);}catch(e){} }
+};
+let saveT=null;
+function queueSave(){ const el=document.getElementById('savei'); el.textContent="Saving…"; el.classList.add('on');
+  clearTimeout(saveT); saveT=setTimeout(async()=>{ stashCurrent(); await Store.save(state); el.textContent="Saved"; el.classList.remove('on'); renderRail(); },650); }
+
+/* ===================== HELPERS ===================== */
+const editor=()=>document.getElementById('editor');
+function allLeaves(){ const o=[]; BOOK.forEach(p=>{ if(p.lead)o.push({...p.lead,part:p.part,name:p.name,ico:p.ico,title:p.name}); (p.children||[]).forEach(c=>o.push({...c,part:p.part})); }); return o; }
+function leaf(id){ return allLeaves().find(l=>l.id===id); }
+function partOf(id){ const l=leaf(id); return l?l.part:"I"; }
+function docText(html){ const d=document.createElement('div'); d.innerHTML=html||""; d.querySelectorAll('.prompt').forEach(p=>p.remove()); return d.innerText.replace(/\n{3,}/g,"\n\n").trim(); }
+function leafHasContent(l){
+  if(l.type==="epochs") return (state.epochs||[]).some(e=>(e.text||"").trim());
+  if(l.type==="traits"){ const t=state.traits[l.id]; return t&&t.sel.length>0; }
+  if(l.type==="threads") return (state.threads?.insights?.length||0)>0;
+  return docText(state.docs[l.id]||"").length>0;
+}
+function stashCurrent(){ const l=leaf(current); if(l&&(l.type==="doc"||l.type==="vision")&&document.getElementById('editor')) state.docs[current]=editor().innerHTML; }
+function gateOpen(){ return (state.threads?.insights?.length||0)>0; }
+function identityOpen(){ return docText(state.docs.new_identity||"").length>0; }
+function lockedReason(c){ if(!c.gated) return null;
+  if(c.gateBy==="threads") return gateOpen()?null:"threads";
+  if(c.gateBy==="identity") return identityOpen()?null:"identity";
+  return null; }
+const IDENTITY_SEED=`<p class="prompt" contenteditable="false">The lens for everything that follows. Write loosely — you'll come back to this.</p><p><br></p>`
+  +`<h2>Heroes</h2><p class="prompt" contenteditable="false">Who do you most admire — and what do they have that you want?</p><p><br></p>`
+  +`<h2>Anti-heroes</h2><p class="prompt" contenteditable="false">Who are you determined <em>not</em> to become?</p><p><br></p>`
+  +`<h2>Values</h2><p class="prompt" contenteditable="false">What three things matter most, beneath everything else? If a stranger watched you for a week, what would they say you actually value?</p><p><br></p>`
+  +`<h2>Beliefs</h2><p class="prompt" contenteditable="false">What do you believe about how life works?</p><p><br></p>`;
+function futureSeed(title,hint){ const h=hint?` <em>(${hint})</em>`:'';
+  const t=title.toLowerCase();
+  return `<p class="prompt" contenteditable="false">Step into this life as the person you've become. Write it as already true — present tense, in your own voice. You're not setting a goal; you're describing a life you're living.</p><p><br></p>`
+    +`<h2>The reality</h2><p class="prompt" contenteditable="false">As this new self, what does a normal day look like in your ${t}?${h} What is simply true now that was once only a hope?</p><p><br></p>`
+    +`<h2>The feeling</h2><p class="prompt" contenteditable="false">From the inside — how does this part of your life feel? What do you wake up feeling here?</p><p><br></p>`
+    +`<h2>Who you've become</h2><p class="prompt" contenteditable="false">Who did you become to live this? What qualities define you here, and what became easy that once felt hard?</p><p><br></p>`
+    +`<h2>What you do</h2><p class="prompt" contenteditable="false">What does this version of you do naturally — the habits and standards that quietly make this life real?</p><p><br></p>`;
+}
+function seedDoc(id){ if(id==="identity_now") return IDENTITY_SEED; const lf=leaf(id); if(lf&&lf.group) return futureSeed(lf.title,lf.hint);
+  const ps=PROMPTS[id]||[]; return ps.map(q=>`<p class="prompt" contenteditable="false">${q}</p><p><br></p>`).join("")||"<p><br></p>"; }
+function paras(t){ return t.split(/\n{2,}/).map(p=>`<p>${p.replace(/\n/g,"<br>")}</p>`).join(""); }
+
+/* ===================== LEFT RAIL ===================== */
+/* ===================== SIDEBAR ICONS (Lucide, outline) ===================== */
+const LIC={
+  user:'<circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/>',
+  scroll:'<path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/>',
+  scale:'<path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/>',
+  branch:'<line x1="6" x2="6" y1="3" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/>',
+  compass:'<path d="m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z"/><circle cx="12" cy="12" r="10"/>',
+  sparkles:'<path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .962 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.582a.5.5 0 0 1 0 .962L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.962 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/>',
+  lock:'<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  chev:'<path d="m9 18 6-6-6-6"/>',
+  account:'<circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/>',
+  panelL:'<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/>',
+  panelR:'<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M15 3v18"/>',
+  chevL:'<path d="m15 18-6-6 6-6"/>',
+  book:'<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
+  target:'<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+};
+function lic(name,cls){ return `<svg class="${cls||'nav-ico'}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${LIC[name]||''}</svg>`; }
+const PART_ICON={I:'user',II:'scroll',III:'scale',IV:'compass',V:'sparkles'};
+
+/* ===================== LEFT RAIL ===================== */
+function renderRail(){
+  const root=document.getElementById('railParts'); root.innerHTML=""; const open=gateOpen();
+  BOOK.forEach(p=>{
+    const wrap=document.createElement('div'); wrap.className="part";
+    const expandable=!!p.children;
+    const head=document.createElement('button');
+    const leadActive=p.lead&&current===p.lead.id;
+    const leadDone=p.lead&&leafHasContent({...p.lead,title:p.name});
+    head.className="chapter "+(expandable?"group":"lead")+(expandable&&ui.parts[p.part]?" open":"")+(leadActive?" active":"")+(leadDone?" done":"");
+    head.innerHTML=`<span class="chev">${expandable?lic('chev','chev-ic'):''}</span>`
+      +`<span class="chapter-ico">${lic(PART_ICON[p.part])}</span>`
+      +`<span class="chapter-label"><span class="part-eyebrow">Part ${p.part}</span><span class="chapter-name">${p.name}</span></span>`;
+    if(p.lead){ const lid=p.lead.id; head.onclick=()=>selectLeaf(lid); }
+    else head.onclick=()=>{ ui.parts[p.part]=!ui.parts[p.part]; renderRail(); };
+    wrap.appendChild(head);
+    if(expandable && ui.parts[p.part]){
+      let shownNote={}, lastGroup=null, focusShown=false; const focus=state.futureFocus||[];
+      const NOTE={threads:"Unlocks when you weave your Threads",identity:"Unlocks once you write your New Identity"};
+      const mkItem=(c,locked,reason)=>{
+        const b=document.createElement('button');
+        const areaCls=c.group?(" area "+(focus.includes(c.id)?"focus":"dim")):"";
+        b.className="item"+(c.turning?" threads":"")+(c.shadow?" shadow":"")+areaCls+(current===c.id?" active":"")+(locked?" locked":"")+(leafHasContent(c)?" done":"");
+        const ico=c.turning?`<span class="thread-ico">${lic('branch')}</span>`:'';
+        const tail=locked?`<span class="lock">${lic('lock','lock-ic')}</span>`:'<span class="dot"></span>';
+        b.innerHTML=ico+`<span class="nm">${c.title}</span>`+tail;
+        b.onclick=()=> locked? flash(reason==="identity"?"Write your New Identity first — your future grows out of who you're becoming.":"Walk your story first — Identity, Past, Present, then weave your Threads. Your new self unlocks there.") : selectLeaf(c.id);
+        wrap.appendChild(b);
+      };
+      p.children.forEach(c=>{
+        if(c.turning){ const dv=document.createElement('div'); dv.className="turning-div"; dv.innerHTML=`<span class="l"></span><span>The Turning Point</span><span class="r"></span>`; wrap.appendChild(dv); mkItem(c,false); return; }
+        const reason=lockedReason(c); const locked=!!reason;
+        if(reason==="threads"){
+          if(!shownNote.threads){ const nt=document.createElement('div'); nt.className="locked-note"; nt.innerHTML=`${lic('lock','lock-mini')}<span>${NOTE.threads}</span>`; wrap.appendChild(nt); shownNote.threads=true; }
+          mkItem(c,true,"threads"); return;
+        }
+        if(reason==="identity"){
+          if(gateOpen() && !shownNote.identity){ const nt=document.createElement('div'); nt.className="locked-note"; nt.innerHTML=`${lic('lock','lock-mini')}<span>${NOTE.identity}</span>`; wrap.appendChild(nt); shownNote.identity=true; }
+          return;
+        }
+        // unlocked
+        if(c.group){
+          if(!focusShown){ const fr=document.createElement('button'); fr.className="focus-row"+(current==="__focus"?" active":"");
+            const n=focus.length, cy=state.focusCycle||1; fr.innerHTML=`<span class="focus-ico">${lic('target')}</span><span class="focus-lbl">Focus Cycle<small>${n?("Cycle "+cy+" · "+n+" of 3 rooms"):("Cycle "+cy+" · choose 3 rooms")}</small></span>`;
+            fr.onclick=selectFocus; wrap.appendChild(fr); focusShown=true; }
+          if(c.group!==lastGroup){ const g=document.createElement('div'); g.className="future-group"; g.textContent=c.group; wrap.appendChild(g); lastGroup=c.group; }
+        }
+        if(c.shadow){ const sd=document.createElement('div'); sd.className="shadow-div"; sd.innerHTML=`<span class="l"></span><span>The Other Path</span><span class="r"></span>`; wrap.appendChild(sd); }
+        mkItem(c,false);
+      });
+    }
+    root.appendChild(wrap);
+  });
+  document.getElementById('bookCard').classList.toggle('active',current==="__book"||current==="__reader");
+  const written=allLeaves().filter(leafHasContent).length;
+  document.getElementById('bookSub').textContent= written? `${written} section${written===1?'':'s'} written` : "Your story, past to future";
+  renderProgress();
+  if(typeof updateMiniCur==='function') updateMiniCur();
+}
+
+/* ===================== NAV ===================== */
+function selectLeaf(id){
+  stashCurrent(); stopRead(); current=id; const l=leaf(id);
+  if(l.type==="epochs") renderEpochs(l);
+  else if(l.type==="traits") renderTraits(l);
+  else if(l.type==="threads") renderThreads(l);
+  else if(l.type==="vision") renderVision(l);
+  else renderDoc(l);
+  document.getElementById('crumbCur').textContent=l.title||l.name;
+  renderRail(); setMuseMode();
+  if(window.innerWidth<=980) closeDrawers();
+  document.getElementById('scroll').scrollTop=0;
+}
+function selectBook(){ stashCurrent(); stopRead(); current="__book"; renderBook(); document.getElementById('crumbCur').textContent="The Book";
+  renderRail(); document.getElementById('mctx').textContent="Your book — cover & whole story"; document.getElementById('qrow').innerHTML="";
+  if(window.innerWidth<=980) closeDrawers(); document.getElementById('scroll').scrollTop=0; }
+function showToolbar(on){ document.getElementById('toolbar').style.display=on?'flex':'none'; }
+
+/* doc */
+function renderDoc(l){
+  showToolbar(true);
+  const wrap=document.getElementById('docWrap');
+  const eyebrow=`Part ${l.part}${l.group?" · "+l.group:""}`;
+  const lede=LEDES[l.id]||(l.group?"Step into this part of the life you're becoming. Write it as already true.":"");
+  wrap.innerHTML=`<div class="doc-head"><div class="eb">${eyebrow}</div><h1>${l.title||l.name}</h1><p class="lede">${lede}</p></div>
+    <div class="editor" id="editor" contenteditable="true" spellcheck="true"></div><div class="doc-foot" id="docFoot"></div>`;
+  editor().innerHTML=state.docs[l.id]||seedDoc(l.id); wireEditor();
+  document.getElementById('docFoot').innerHTML=`<button class="fbtn pri" id="toVision">Send to Vision ❤️</button>`;
+  document.getElementById('toVision').onclick=()=>sendToVision(l); updateWC();
+}
+function sendToVision(l){ const t=docText(state.docs[l.id]=editor().innerHTML); if(!t){ flash("Write a little here first."); return; }
+  state.docs.vision=(state.docs.vision||"")+`<h2>${l.title||l.name}</h2>`+paras(t); queueSave(); flash(`Added ${l.title||l.name} to your Vision. ❤️`); }
+
+/* focus cycle */
+function selectFocus(){ stashCurrent(); stopRead(); current="__focus"; renderFocus(); document.getElementById('crumbCur').textContent="Focus Cycle";
+  renderRail(); document.getElementById('mctx').textContent="Choose where to go deep this cycle"; document.getElementById('qrow').innerHTML="";
+  if(window.innerWidth<=980) closeDrawers(); document.getElementById('scroll').scrollTop=0; }
+function renderFocus(){
+  showToolbar(false); document.getElementById('wc').textContent="";
+  const sel=state.futureFocus||(state.futureFocus=[]);
+  const cycle=state.focusCycle||(state.focusCycle=1);
+  const hist=state.focusHistory||[];
+  const groups={}; FAREAS.forEach(a=>{ (groups[a.group]=groups[a.group]||[]).push(a); });
+  const nameOf=id=>{ const a=FAREAS.find(x=>x.id===id); return a?a.title:id; };
+  const writtenCount=sel.filter(id=>{ const lf=leaf(id); return lf&&leafHasContent(lf); }).length;
+  const canComplete=sel.length>0 && writtenCount>=Math.min(2,sel.length);
+  let html=`<div class="doc-head"><div class="eb">Part IV · Future · Cycle ${cycle}</div><h1>Choose Your ${cycle>1?'Next ':''}Three Rooms</h1><p class="lede">Your future is a house with many rooms. For this cycle, choose three to enter deeply — the rest stay available, just quiet. You don't have to build your whole future today; go deep into a few rooms, then return for the next.</p></div>`;
+  if(hist.length){ html+=`<div class="focus-history"><div class="fh-head">Cycles you've walked</div>`;
+    hist.forEach(h=>{ html+=`<div class="fh-row"><span class="fh-c">Cycle ${h.cycle}</span><span class="fh-a">${h.areas.map(nameOf).join(" · ")}</span></div>`; }); html+=`</div>`; }
+  html+=`<div class="focus-pick">`;
+  Object.keys(groups).forEach(g=>{ html+=`<div class="future-group fg-page">${g}</div><div class="focus-chips">`;
+    groups[g].forEach(a=>{ const on=sel.includes(a.id); html+=`<button class="focus-chip${on?' on':''}" data-id="${a.id}">${a.title}</button>`; }); html+=`</div>`; });
+  html+=`</div><div class="focus-foot"><span id="focusCount">${sel.length} of 3 chosen</span><button class="fbtn pri" id="focusBegin">Begin with these →</button></div>`;
+  if(canComplete){ html+=`<div class="focus-complete-wrap"><button class="focus-complete" id="focusComplete">These rooms feel explored — complete Cycle ${cycle} &amp; choose your next →</button></div>`; }
+  const wrap=document.getElementById('docWrap'); wrap.innerHTML=html;
+  wrap.querySelectorAll('.focus-chip').forEach(b=>b.onclick=()=>{
+    const id=b.dataset.id; const s=state.futureFocus||(state.futureFocus=[]); const i=s.indexOf(id);
+    if(i>=0) s.splice(i,1);
+    else { if(s.length>=3){ flash("Three is enough for one cycle. You can change them anytime."); return; } s.push(id); }
+    queueSave(); renderFocus(); renderRail();
+  });
+  document.getElementById('focusBegin').onclick=()=>{ const s=state.futureFocus||[]; s.length? selectLeaf(s[0]) : flash("Choose at least one room to begin — or open any chapter freely."); };
+  const fc=document.getElementById('focusComplete'); if(fc) fc.onclick=completeCycle;
+}
+function completeCycle(){
+  const s=state.futureFocus||[]; if(!s.length){ flash("Choose a few rooms first."); return; }
+  const names=s.map(id=>{ const a=FAREAS.find(x=>x.id===id); return a?a.title:id; });
+  state.focusHistory=state.focusHistory||[]; state.focusHistory.push({cycle:state.focusCycle||1,areas:s.slice()});
+  const done=state.focusCycle||1; state.focusCycle=done+1; state.futureFocus=[];
+  queueSave(); renderRail(); renderCycleComplete(done,names); document.getElementById('scroll').scrollTop=0;
+}
+function renderCycleComplete(done,rooms){
+  showToolbar(false); document.getElementById('wc').textContent="";
+  const list=rooms.map(t=>`<span class="cd-room">${t}</span>`).join('<span class="cd-dot">·</span>');
+  document.getElementById('docWrap').innerHTML=`<div class="cycle-done">
+    <div class="cd-eyebrow">Cycle ${done} Complete</div>
+    <h1 class="cd-title">You entered</h1>
+    <div class="cd-rooms">${list}</div>
+    <p class="cd-note">Those rooms remain part of your book. Now choose the next rooms that are calling you.</p>
+    <button class="cover-begin" id="cdNext">Choose the Next Three →</button>
+  </div>`;
+  document.getElementById('cdNext').onclick=()=>{ renderFocus(); document.getElementById('scroll').scrollTop=0; };
+}
+
+/* epochs */
+function defaultEpochs(){ return ["Childhood","Adolescence","Coming of age","Early adulthood","Recent years","Now"].map((t,i)=>({id:"e"+i+"_"+Date.now(),title:t,text:""})); }
+function renderEpochs(l){
+  showToolbar(false); if(!state.epochs) state.epochs=defaultEpochs();
+  const wrap=document.getElementById('docWrap');
+  wrap.innerHTML=`<div class="doc-head"><div class="eb">Part II · Past</div><h1>Life Epochs</h1><p class="lede">Break your life into chapters. Tell the truth of each one.</p></div><div id="epochList"></div><div class="doc-foot"><button class="fbtn" id="addEpoch">+ Add epoch</button></div>`;
+  const list=wrap.querySelector('#epochList');
+  state.epochs.forEach((ep,i)=>{
+    const d=document.createElement('div'); d.className="epoch";
+    d.innerHTML=`<button class="del">remove</button><input class="t" value="${(ep.title||'').replace(/"/g,'&quot;')}"><textarea placeholder="What happened in this chapter — and who did it make you?">${ep.text||""}</textarea>`;
+    const ti=d.querySelector('.t'), ta=d.querySelector('textarea');
+    ti.addEventListener('input',()=>{ep.title=ti.value;queueSave();});
+    ta.addEventListener('input',()=>{ep.text=ta.value;ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';queueSave();});
+    setTimeout(()=>{ta.style.height='auto';ta.style.height=Math.max(ta.scrollHeight,70)+'px';},0);
+    d.querySelector('.del').onclick=()=>{ state.epochs.splice(i,1); queueSave(); renderEpochs(l); };
+    list.appendChild(d);
+  });
+  wrap.querySelector('#addEpoch').onclick=()=>{ state.epochs.push({id:"e"+Date.now(),title:"New chapter",text:""}); queueSave(); renderEpochs(l); };
+  document.getElementById('wc').textContent="";
+}
+
+/* traits */
+function renderTraits(l){
+  showToolbar(false); const words=l.id==="faults"?FAULT_WORDS:VIRTUE_WORDS; const t=state.traits[l.id]; const isF=l.id==="faults";
+  const wrap=document.getElementById('docWrap');
+  wrap.innerHTML=`<div class="doc-head"><div class="eb">Part III · Present</div><h1>${isF?"Faults":"Virtues"}</h1>
+    <p class="lede">${isF?"Pick the patterns that get in your way — then own a moment each one cost you.":"Pick the strengths that are truly yours — then claim a moment each one carried you."}</p></div>
+    <p style="font-family:var(--read);color:var(--muted);font-size:14px;margin:0 0 4px;">Choose 6–9, then rank and reflect.</p>
+    <div class="trait-chips" id="chips"></div><div id="ranked"></div>`;
+  const chips=wrap.querySelector('#chips');
+  words.forEach(w=>{ const b=document.createElement('button'); b.className="tchip"+(t.sel.includes(w)?" sel":""); b.textContent=w;
+    b.onclick=()=>{ const i=t.sel.indexOf(w); if(i>=0){t.sel.splice(i,1);delete t.notes[w];} else { if(t.sel.length>=9){flash("Nine is plenty — that's enough to see the pattern.");return;} t.sel.push(w);} queueSave(); renderTraits(l); }; chips.appendChild(b); });
+  const ranked=wrap.querySelector('#ranked');
+  t.sel.forEach((w,i)=>{
+    const row=document.createElement('div'); row.className="rrow";
+    row.innerHTML=`<div class="rank">${i+1}</div><div class="body"><div class="name">${w}</div><textarea placeholder="A time ${w.toLowerCase()} had a real effect on your life…">${(t.notes[w]||"").replace(/</g,'&lt;')}</textarea></div><div class="mv"><button data-d="-1">↑</button><button data-d="1">↓</button></div>`;
+    const ta=row.querySelector('textarea'); ta.addEventListener('input',()=>{t.notes[w]=ta.value;ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';queueSave();});
+    setTimeout(()=>{ta.style.height='auto';ta.style.height=Math.max(ta.scrollHeight,54)+'px';},0);
+    row.querySelectorAll('.mv button').forEach(btn=>btn.onclick=()=>{ const d=+btn.dataset.d, j=i+d; if(j<0||j>=t.sel.length)return; [t.sel[i],t.sel[j]]=[t.sel[j],t.sel[i]]; queueSave(); renderTraits(l); });
+    ranked.appendChild(row);
+  });
+  document.getElementById('wc').textContent="";
+}
+
+/* ===================== THREADS (realization cards) ===================== */
+function allUserText(){ let p=[]; p.push(docText(state.docs.identity_now||"")); p.push(docText(state.docs.key_exp||""));
+  (state.epochs||[]).forEach(e=>p.push(e.text||"")); ["faults","virtues"].forEach(k=>{ const t=state.traits[k]; if(t){ p.push(t.sel.join(" ")); Object.values(t.notes||{}).forEach(v=>p.push(v)); } }); return p.join(" "); }
+function computeRepeats(){
+  const words=allUserText().toLowerCase().split(/[^a-z']+/).filter(w=>w.length>=4 && !STOP.has(w));
+  const c={}; words.forEach(w=>c[w]=(c[w]||0)+1);
+  return Object.entries(c).filter(([w,n])=>n>=4).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([w,n])=>({word:w,count:n}));
+}
+function renderThreads(l){
+  showToolbar(false); document.getElementById('wc').textContent="";
+  const wrap=document.getElementById('docWrap'); const th=state.threads||{insights:[],repeats:[]};
+  let cards="";
+  if(th.repeats&&th.repeats.length) cards+=th.repeats.map(r=>`<div class="tcard repeat"><span class="k">a word you return to</span>You came back to “${r.word}” ${r.count} times.</div>`).join("");
+  if(th.insights&&th.insights.length) cards+=th.insights.map(t=>`<div class="tcard"><span class="k">a thread</span>${t}</div>`).join("");
+  const becoming= th.becoming? `<div class="becoming">${th.becoming}</div>`:"";
+  const hasThreads=(th.insights&&th.insights.length)>0;
+  wrap.innerHTML=`<div class="doc-head"><div class="eb" style="color:var(--thread)">Part IV · The Turning Point</div><h1>🧵 Threads of My Story</h1><p class="lede">What your story has been quietly saying all along.</p></div>
+    ${hasThreads?"":`<p class="threads-intro">Once you've written your Identity, Past and Present, ask the Muse to read it all back and surface your threads — the words you repeat, the patterns you keep living, the person hiding in them. That's what unlocks your New Identity.</p>`}
+    <div id="threadCards">${cards}${becoming}</div>
+    <div class="doc-foot"><button class="fbtn thread" id="weave">${hasThreads?"↻ Re-weave my threads":"✦ Let the Muse find my threads"}</button>${hasThreads?'<button class="fbtn" id="toNew">Meet your new self →</button>':''}</div>`;
+  wrap.querySelector('#weave').onclick=weaveThreads;
+  const tn=wrap.querySelector('#toNew'); if(tn) tn.onclick=()=>selectLeaf('new_identity');
+}
+const THREADS_SYS="You are the Muse at the emotional midpoint of someone's life book. Read their Identity, Past, and Present and reflect their story back as short, specific, second-person revelations — recurring themes, a value they keep betraying, a contradiction (what they admire vs how they live), a repeated move, the identity clue hiding in it. Be specific to THEIR words; never generic. Output EXACTLY this format and nothing else:\nINSIGHTS:\n- <insight>\n- <insight>\n(4 to 6 lines)\nBECOMING: <one sentence naming who they seem ready to become>";
+function parseThreads(out){
+  const lines=out.split(/\n/).map(s=>s.trim());
+  const insights=[]; let becoming="";
+  lines.forEach(s=>{ if(/^[-•]/.test(s)) insights.push(s.replace(/^[-•]\s*/,"").trim()); else if(/^becoming:/i.test(s)) becoming=s.replace(/^becoming:/i,"").trim(); });
+  if(!insights.length){ out.split(/\n{2,}/).forEach(s=>{ s=s.trim(); if(s&&!/^insights:/i.test(s)) insights.push(s); }); }
+  if(!becoming) becoming="You seem ready to become someone who lives by what they already know.";
+  return {insights:insights.slice(0,6),becoming};
+}
+async function weaveThreads(){
+  if(allUserText().trim().length<40){ flash("Write a little in Identity, Past, or Present first — I need a story to read."); return; }
+  if(window.innerWidth<=980) openDrawer('muse');
+  const repeats=computeRepeats();
+  bubble("u","Read my story back — find the threads.",false);
+  const t=bubble("m","Reading your Identity, Past, and Present…",false); t.classList.add('think');
+  try{
+    const out=await callClaude(THREADS_SYS, `${fullBookDigest()}\n\n${repeats.length?("Words they repeat: "+repeats.map(r=>r.word+" ×"+r.count).join(", ")):""}`);
+    t.remove(); const parsed=parseThreads(out);
+    const firstTime=!(state.threads&&state.threads.insights&&state.threads.insights.length);
+    state.threads={repeats,insights:parsed.insights,becoming:parsed.becoming};
+    queueSave(); if(current==="threads") renderThreads(leaf("threads")); renderRail();
+    bubble("m","I've found your threads — they're on the page. ✨",false);
+    if(firstTime) revealNewIdentity(parsed.becoming); else flash("Threads refreshed.");
+  }catch(e){ t.remove(); aiError(); }
+}
+
+/* reveal */
+function revealNewIdentity(becoming){ document.getElementById('revealLine').textContent=becoming||"You seem ready to become someone new."; document.getElementById('reveal').classList.add('show'); }
+document.getElementById('revealGo').onclick=()=>{ document.getElementById('reveal').classList.remove('show'); selectLeaf('new_identity'); };
+document.getElementById('revealSkip').onclick=()=>document.getElementById('reveal').classList.remove('show');
+
+/* ===================== BOOK OBJECT (cover) ===================== */
+function editionLine(){ const c=state.cover||(state.cover={}); if(!c.begunAt){ c.begunAt=new Date().toISOString(); queueSave(); }
+  return "First Edition · "+new Date(c.begunAt).toLocaleDateString(undefined,{month:'long',year:'numeric'}); }
+function renderBook(){
+  showToolbar(false); document.getElementById('wc').textContent="";
+  const c=state.cover||(state.cover={title:"",subtitle:"",quote:""});
+  const wrap=document.getElementById('docWrap');
+  wrap.innerHTML=`
+    <div class="cover-stage">
+      <div class="cover">
+        <div class="cover-eyebrow">A Full Life Book</div>
+        <div class="cover-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
+        <div class="cover-title" id="covTitle" contenteditable="true" spellcheck="false" data-ph="My Full Life Book">${esc(c.title||"")}</div>
+        <div class="cover-sub-row">
+          <div class="cover-sub" id="covSub" contenteditable="true" spellcheck="false" data-ph="the theme of your whole book…">${esc(c.subtitle||"")}</div>
+          <button class="cover-spark" id="aiSub" title="Let the Muse name the theme">✦</button>
+        </div>
+        <div class="cover-rule"></div>
+        <div class="cover-quote-row">
+          <div class="cover-quote ${c.quote?'':'empty'}" id="covQuote">${c.quote? '“'+esc(c.quote)+'”' : 'a line drawn from your own words…'}</div>
+          <button class="cover-spark" id="aiQuote" title="Pull a line from your words">✦</button>
+        </div>
+        <div class="cover-colophon">${editionLine()}</div>
+      </div>
+    </div>
+    <div class="cover-actions">
+      <button class="cover-begin" id="openBook">Open the book →</button>
+      <div class="cover-links"><button id="exportMd">Export · Markdown</button><span>·</span><button id="exportHtml">Printable book (HTML)</button></div>
+    </div>`;
+  const tt=wrap.querySelector('#covTitle'), ss=wrap.querySelector('#covSub'), qq=wrap.querySelector('#covQuote');
+  const noNL=e=>{ if(e.key==='Enter'){ e.preventDefault(); e.target.blur(); } };
+  tt.addEventListener('input',()=>{c.title=tt.textContent.trim();queueSave();}); tt.addEventListener('keydown',noNL);
+  ss.addEventListener('input',()=>{c.subtitle=ss.textContent.trim();queueSave();}); ss.addEventListener('keydown',noNL);
+  qq.onclick=()=>{ if(!c.quote) pullLine(); };
+  async function suggestSub(){ ss.classList.add('thinking');
+    try{ const out=await callClaude("Suggest one short, evocative book subtitle (max 7 words) for this person's life book, capturing its theme. Return only the subtitle.", fullBookDigest()||"a life in progress"); c.subtitle=out.replace(/^["']|["']$/g,""); ss.textContent=c.subtitle; queueSave(); }catch(e){ aiError(); } finally{ ss.classList.remove('thinking'); } }
+  async function pullLine(){ qq.classList.add('thinking');
+    try{ const out=await callClaude("From the writer's own words below, choose ONE short, resonant sentence to sit on their book cover. Return only that sentence, lightly cleaned, no quotes.", fullBookDigest()||""); c.quote=out.replace(/^["']|["']$/g,""); qq.textContent='“'+c.quote+'”'; qq.classList.remove('empty'); queueSave(); }catch(e){ aiError(); } finally{ qq.classList.remove('thinking'); } }
+  wrap.querySelector('#aiSub').onclick=suggestSub;
+  wrap.querySelector('#aiQuote').onclick=pullLine;
+  wrap.querySelector('#openBook').onclick=gatherAndRead;
+  wrap.querySelector('#exportMd').onclick=exportBook;
+  wrap.querySelector('#exportHtml').onclick=exportHTML;
+}
+function esc(s){ return (s==null?"":String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function chaptersData(){
+  stashCurrent(); const out=[];
+  BOOK.forEach(p=>{
+    const leaves=p.lead?[{...p.lead,title:p.name}]:(p.children||[]);
+    leaves.forEach(l=>{
+      let html="";
+      if(l.type==="epochs"){ const eps=(state.epochs||[]).filter(e=>(e.text||'').trim()); if(eps.length) html=eps.map(e=>`<h4 class="r-sub">${esc(e.title)}</h4>`+paras(e.text)).join(""); }
+      else if(l.type==="traits"){ const tt=state.traits[l.id]; if(tt&&tt.sel.length) html=`<ol class="r-traits">`+tt.sel.map(w=>`<li><span class="r-trait-w">${esc(w)}</span>${tt.notes[w]?` — ${esc(tt.notes[w])}`:""}</li>`).join("")+`</ol>`; }
+      else if(l.type==="threads"){ const th=state.threads; if(th&&th.insights&&th.insights.length){ html=(th.repeats||[]).map(r=>`<p class="r-thread">You came back to “${esc(r.word)}” ${r.count} times.</p>`).join("")+th.insights.map(t=>`<p class="r-thread">${esc(t)}</p>`).join("")+(th.becoming?`<p class="r-becoming">${esc(th.becoming)}</p>`:""); } }
+      else { const t=docText(state.docs[l.id]||""); if(t) html=paras(t); }
+      if(html) out.push({part:p.part,partName:p.name,title:l.title||l.name,html,anchor:"rc_"+(l.id||l.part)});
+    });
+  });
+  return out;
+}
+function begunDate(){ const c=state.cover||{}; if(!c.begunAt){ c.begunAt=new Date().toISOString(); queueSave(); } return new Date(c.begunAt).toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'}); }
+function gatherAndRead(){
+  stashCurrent(); stopRead(); current="__reader"; showToolbar(false); document.getElementById('wc').textContent="";
+  document.getElementById('crumbCur').textContent="Reading"; renderRail();
+  document.getElementById('docWrap').innerHTML=`<div class="r-gather"><div class="r-gather-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div><div class="r-gather-txt">Gathering your book…</div></div>`;
+  document.getElementById('scroll').scrollTop=0; if(window.innerWidth<=980) closeDrawers();
+  setTimeout(openReader,750);
+}
+function openReader(){
+  current="__reader"; const c=state.cover||{}; const chs=chaptersData(); const date=begunDate();
+  let html=`<div class="reader"><div class="reader-bar"><button class="r-close" id="rClose">← Cover</button><span class="r-title">${esc(c.title||"My Full Life Book")}</span><button class="r-toc" id="rTocBtn">Contents</button></div>`;
+  if(!chs.length){ html+=`<div class="r-empty">Your pages are still blank.<br>Begin with Identity, and your book will fill itself in here.</div></div>`;
+    document.getElementById('docWrap').innerHTML=html;
+    document.getElementById('rClose').onclick=()=>{ current="__book"; renderBook(); renderRail(); document.getElementById('scroll').scrollTop=0; document.getElementById('crumbCur').textContent="The Book"; };
+    return; }
+  html+=`<section class="r-titlepage"><div class="r-eyebrow">A Full Life Book</div><h1 class="r-booktitle">${esc(c.title||"My Full Life Book")}</h1>${c.subtitle?`<div class="r-booksub">${esc(c.subtitle)}</div>`:""}${c.quote?`<div class="r-epigraph">“${esc(c.quote)}”</div>`:""}<div class="r-begun">${editionLine()}</div></section>`;
+  html+=`<section class="r-toc-page" id="rToc"><div class="r-toc-head">Contents</div>`;
+  let lp=null; chs.forEach(ch=>{ if(ch.part!==lp){ html+=`<div class="r-toc-part">Part ${ch.part} · ${esc(ch.partName)}</div>`; lp=ch.part; } html+=`<button class="r-toc-item" data-go="${ch.anchor}">${esc(ch.title)}</button>`; });
+  html+=`</section>`;
+  lp=null; chs.forEach(ch=>{ if(ch.part!==lp){ html+=`<div class="r-partdiv"><span>Part ${ch.part}</span><h2>${esc(ch.partName)}</h2></div>`; lp=ch.part; }
+    html+=`<section class="r-chapter" id="${ch.anchor}"><h3 class="r-chtitle">${esc(ch.title)}</h3><div class="r-body">${ch.html}</div></section>`; });
+  html+=`<section class="r-closing"><div class="r-rule"></div><p>Here the book pauses.</p><p class="r-begun">${editionLine()} · to be continued</p></section></div>`;
+  document.getElementById('docWrap').innerHTML=html;
+  document.getElementById('rClose').onclick=()=>{ current="__book"; renderBook(); renderRail(); document.getElementById('scroll').scrollTop=0; document.getElementById('crumbCur').textContent="The Book"; };
+  document.getElementById('rTocBtn').onclick=()=>document.getElementById('rToc').scrollIntoView({behavior:'smooth',block:'start'});
+  document.querySelectorAll('.r-toc-item').forEach(b=>b.onclick=()=>{ const el=document.getElementById(b.dataset.go); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); });
+  document.getElementById('scroll').scrollTop=0;
+}
+const BOOK_PRINT_CSS=`*{box-sizing:border-box}body{margin:0;background:#e9e4d8;color:#2a2433;font-family:'Spectral',Georgia,serif;line-height:1.78;}
+.cover,.toc,.chapter,.partdiv,.closing{max-width:680px;margin:0 auto;padding:0 30px;}
+.cover{min-height:92vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;}
+.cover .eyebrow{font:600 11px/1 system-ui;letter-spacing:.34em;text-transform:uppercase;color:#9a7d5a;margin-bottom:26px;}
+.cover h1{font-family:'Fraunces',serif;font-weight:600;font-size:44px;margin:0 0 12px;}
+.cover .sub{font-style:italic;font-size:20px;color:#7a5a68;margin-bottom:26px;}
+.cover .epi{font-style:italic;font-size:18px;max-width:420px;color:#4a4350;border-top:1px solid #cabfa9;padding-top:24px;}
+.begun{font:600 10px/1 system-ui;letter-spacing:.22em;text-transform:uppercase;color:#9a8f7a;margin-top:30px;}
+.toc{padding-top:50px;} .toc h2{font-family:'Fraunces',serif;font-size:24px;color:#7a5a68;margin-bottom:14px;}
+.toc-part{font:600 10px/1 system-ui;letter-spacing:.18em;text-transform:uppercase;color:#9a8f7a;margin:18px 0 6px;}
+.toc a{display:block;color:#2a2433;text-decoration:none;padding:4px 0;font-size:16px;}
+.partdiv{text-align:center;padding-top:70px;} .partdiv span{font:600 11px/1 system-ui;letter-spacing:.3em;text-transform:uppercase;color:#9a8f7a;}
+.partdiv h2{font-family:'Fraunces',serif;font-weight:600;font-size:32px;margin:8px 0 0;}
+.chapter{padding-top:38px;} .chapter h3{font-family:'Fraunces',serif;font-weight:600;font-size:25px;color:#3a3142;margin:0 0 14px;}
+.chapter .body>p:first-child::first-letter{font-family:'Fraunces',serif;font-weight:600;font-size:54px;float:left;line-height:.78;padding:8px 9px 0 0;color:#7a5a68;}
+.chapter p{font-size:17.5px;margin:0 0 15px;}
+.r-sub{font-family:'Fraunces',serif;font-size:18px;margin:20px 0 6px;}
+.r-traits{padding-left:22px;} .r-traits li{margin:0 0 9px;} .r-trait-w{font-weight:600;}
+.r-thread{border-left:2px solid #b59ad0;padding-left:15px;font-style:italic;color:#4a4350;margin:0 0 12px;}
+.r-becoming{font-family:'Fraunces',serif;font-size:20px;color:#7a5a68;}
+.closing{text-align:center;padding:70px 30px 90px;font-style:italic;color:#6a6258;}
+@media print{body{background:#fff;}.cover{min-height:100vh;}.partdiv{page-break-before:always;}.chapter{page-break-inside:avoid;}}`;
+function exportHTML(){
+  const c=state.cover||{}; const chs=chaptersData(); const date=begunDate();
+  let body=`<div class="cover"><div class="eyebrow">A Full Life Book</div><h1>${esc(c.title||"My Full Life Book")}</h1>${c.subtitle?`<div class="sub">${esc(c.subtitle)}</div>`:""}${c.quote?`<div class="epi">“${esc(c.quote)}”</div>`:""}<div class="begun">${editionLine()}</div></div>`;
+  if(chs.length){ body+=`<nav class="toc"><h2>Contents</h2>`; let lp=null; chs.forEach(ch=>{ if(ch.part!==lp){body+=`<div class="toc-part">Part ${ch.part} · ${esc(ch.partName)}</div>`;lp=ch.part;} body+=`<a href="#${ch.anchor}">${esc(ch.title)}</a>`; }); body+=`</nav>`;
+    let lp2=null; chs.forEach(ch=>{ if(ch.part!==lp2){ body+=`<div class="partdiv"><span>Part ${ch.part}</span><h2>${esc(ch.partName)}</h2></div>`; lp2=ch.part; } body+=`<section class="chapter" id="${ch.anchor}"><h3>${esc(ch.title)}</h3><div class="body">${ch.html}</div></section>`; });
+  }
+  body+=`<div class="closing"><p>Here the book pauses.</p><p class="begun">${editionLine()} · to be continued</p></div>`;
+  const doc=`<!doctype html><html><head><meta charset="utf-8"><title>${esc(c.title||"My Full Life Book")}</title><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Spectral:ital,wght@0,400;1,400&display=swap" rel="stylesheet"><style>${BOOK_PRINT_CSS}</style></head><body>${body}</body></html>`;
+  const b=new Blob([doc],{type:"text/html"}); const u=URL.createObjectURL(b); const a=document.createElement('a'); a.href=u; a.download="my-life-book.html"; a.click(); URL.revokeObjectURL(u);
+  flash("Your book downloaded as a styled HTML file. Open it and use your browser's Print → Save as PDF for a finished copy.");
+}
+function compileBookHTML(){
+  stashCurrent(); let html="";
+  BOOK.forEach(p=>{
+    const leaves=p.lead?[{...p.lead,title:p.name}]:(p.children||[]); let block="";
+    leaves.forEach(l=>{
+      if(l.type==="epochs"){ const t=(state.epochs||[]).filter(e=>e.text.trim()).map(e=>`${e.title}\n${e.text}`).join("\n\n"); if(t) block+=`<h2>${l.title} · Life Epochs</h2>`+paras(t); }
+      else if(l.type==="traits"){ const tt=state.traits[l.id]; if(tt.sel.length){ const t=tt.sel.map((w,i)=>`${i+1}. ${w}${tt.notes[w]?" — "+tt.notes[w]:""}`).join("\n"); block+=`<h2>${l.title}</h2>`+paras(t); } }
+      else if(l.type==="threads"){ if(state.threads?.insights?.length){ const t=state.threads.insights.join("\n")+(state.threads.becoming?"\n\n"+state.threads.becoming:""); block+=`<h2>Threads of My Story</h2>`+paras(t); } }
+      else { const t=docText(state.docs[l.id]||""); if(t) block+=`<h2>${l.title||l.name}</h2>`+paras(t); }
+    });
+    if(block) html+=block;
+  });
+  return html;
+}
+
+/* vision (final future chapter) */
+function renderVision(l){
+  showToolbar(true);
+  const wrap=document.getElementById('docWrap');
+  wrap.innerHTML=`<div class="doc-head"><div class="eb">Part V · Epilogue</div><h1>✨ Life Vision</h1><p class="lede">${LEDES.vision}</p></div>
+    <div class="editor" id="editor" contenteditable="true" spellcheck="true"></div>
+    <div class="doc-foot"><button class="fbtn" id="gatherFut">Gather my future</button><button class="fbtn pri" id="exB">Export book</button></div>`;
+  editor().innerHTML=state.docs.vision||`<p><br></p>`; wireEditor();
+  wrap.querySelector('#gatherFut').onclick=gatherFuture; wrap.querySelector('#exB').onclick=exportBook; updateWC();
+}
+function gatherFuture(){
+  stashCurrent(); let html=""; const fut=BOOK.find(p=>p.part==="IV");
+  fut.children.forEach(c=>{ if(c.type!=="doc")return; const t=docText(state.docs[c.id]||""); if(t) html+=`<h2>${c.title}</h2>`+paras(t); });
+  if(!html){ flash("Write your New Identity and a few Future areas first."); return; }
+  state.docs.vision=html; editor().innerHTML=html; queueSave(); updateWC(); flash("Your future, gathered into one chapter. ❤️");
+}
+
+/* ===================== EDITOR PLUMBING ===================== */
+function wireEditor(){ const ed=editor(); if(!ed)return; ed.addEventListener('input',()=>{ updateWC(); queueSave(); });
+  ed.addEventListener('keyup',e=>{ syncToolbar(); if(e.shiftKey) setTimeout(onSelect,0); });
+  ed.addEventListener('mouseup',()=>{ syncToolbar(); setTimeout(onSelect,0); }); }
+document.getElementById('toolbar').addEventListener('mousedown',e=>{ if(e.target.closest('.tool')) e.preventDefault(); });
+document.querySelectorAll('.tool').forEach(btn=>btn.addEventListener('click',()=>{ if(!editor())return; document.execCommand(btn.dataset.cmd,false,null); editor().focus(); syncToolbar(); queueSave(); }));
+document.getElementById('blockSel').addEventListener('change',e=>{ if(!editor())return; document.execCommand('formatBlock',false,e.target.value); editor().focus(); queueSave(); });
+function syncToolbar(){ ['bold','italic','underline','strikeThrough'].forEach(c=>{ const b=document.querySelector(`.tool[data-cmd="${c}"]`); try{ b&&b.classList.toggle('on',document.queryCommandState(c)); }catch(e){} }); }
+function updateWC(){ const ed=editor(); if(!ed){document.getElementById('wc').textContent="";return;} const n=ed.innerText.trim().split(/\s+/).filter(Boolean).length; document.getElementById('wc').textContent=n?n+(n===1?" word":" words"):""; }
+
+let reading=false;
+function stopRead(){ try{window.speechSynthesis.cancel();}catch(e){} reading=false; const b=document.getElementById('raBtn'); if(b){b.classList.remove('on');b.textContent="▶ Read aloud";} }
+document.getElementById('raBtn').onclick=()=>{ const b=document.getElementById('raBtn'); if(reading){stopRead();return;} const ed=editor(); if(!ed)return; const text=ed.innerText.trim(); if(!text)return;
+  const u=new SpeechSynthesisUtterance(text); u.rate=.96; u.onend=()=>stopRead(); window.speechSynthesis.cancel(); window.speechSynthesis.speak(u); reading=true; b.classList.add('on'); b.textContent="■ Stop"; };
+
+const selpop=document.getElementById('selpop'); let savedRange=null;
+function onSelect(){ const ed=editor(); if(!ed){selpop.classList.remove('show');return;} const sel=window.getSelection();
+  if(!sel.rangeCount||sel.isCollapsed||!ed.contains(sel.anchorNode)||sel.toString().trim().length<2){ selpop.classList.remove('show'); return; }
+  savedRange=sel.getRangeAt(0).cloneRange(); const r=savedRange.getBoundingClientRect(), host=document.querySelector('.center').getBoundingClientRect();
+  selpop.style.left=Math.max(8,(r.left-host.left)+r.width/2-95)+"px"; selpop.style.top=(r.top-host.top-44)+"px"; selpop.classList.add('show'); }
+document.addEventListener('mousedown',e=>{ if(!selpop.contains(e.target)&&!e.target.closest('.editor')&&!e.target.closest('.sugg-ctrl')) selpop.classList.remove('show'); });
+selpop.addEventListener('mousedown',e=>e.preventDefault());
+const SEL_PROMPTS={improve:"Improve this passage — clearer, warmer, better flow. Keep the meaning and the writer's voice.",future:"Rewrite this as the writer's future self, already living it — present tense, vivid, grounded.",vivid:"Make this more vivid and sensory — concrete images and feeling — without exaggerating."};
+selpop.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ const m=b.dataset.sel; selpop.classList.remove('show'); if(m==="ask"){ const q=prompt("What should the Muse do with this passage?"); if(q) inlineSuggest(q); } else inlineSuggest(SEL_PROMPTS[m]); }));
+
+function tokenize(s){ return s.split(/(\s+)/).filter(t=>t!==""); }
+function wordDiff(a,b){ const A=tokenize(a),B=tokenize(b),n=A.length,m=B.length; const dp=Array.from({length:n+1},()=>new Int32Array(m+1));
+  for(let i=n-1;i>=0;i--)for(let j=m-1;j>=0;j--)dp[i][j]=A[i]===B[j]?dp[i+1][j+1]+1:Math.max(dp[i+1][j],dp[i][j+1]);
+  const o=[];let i=0,j=0; while(i<n&&j<m){ if(A[i]===B[j]){o.push({t:'eq',x:A[i]});i++;j++;} else if(dp[i+1][j]>=dp[i][j+1]){o.push({t:'del',x:A[i++]});} else {o.push({t:'ins',x:B[j++]});} }
+  while(i<n)o.push({t:'del',x:A[i++]}); while(j<m)o.push({t:'ins',x:B[j++]}); return o; }
+function renderDiff(span,orig,nw){ span.innerHTML=""; wordDiff(orig,nw).forEach(o=>{ const ws=/^\s+$/.test(o.x);
+  if(o.t==='eq') span.appendChild(document.createTextNode(o.x));
+  else if(ws){ if(o.t==='ins') span.appendChild(document.createTextNode(o.x)); }
+  else if(o.t==='del'){ const d=document.createElement('del');d.textContent=o.x;span.appendChild(d); }
+  else { const ins=document.createElement('ins');ins.textContent=o.x;span.appendChild(ins); } });
+  span.dataset.orig=orig; span.dataset.new=nw; }
+let activeSugg=null;
+function placeCtrl(span){ const ctrl=document.createElement('span'); ctrl.className="sugg-ctrl"; ctrl.contentEditable="false";
+  ctrl.innerHTML=`<button class="ok">✓</button><button class="no">✕</button>`; document.querySelector('.center').appendChild(ctrl);
+  const r=span.getBoundingClientRect(), host=document.querySelector('.center').getBoundingClientRect();
+  ctrl.style.left=Math.max(8,(r.left-host.left))+"px"; ctrl.style.top=(r.top-host.top-34)+"px";
+  ctrl.querySelector('.ok').onclick=()=>resolveSugg(true); ctrl.querySelector('.no').onclick=()=>resolveSugg(false); activeSugg.ctrl=ctrl; }
+function resolveSugg(a){ if(!activeSugg)return; const {span}=activeSugg; span.replaceWith(document.createTextNode(a?span.dataset.new:span.dataset.orig)); activeSugg.ctrl?.remove(); activeSugg=null; updateWC(); queueSave(); editor().focus(); }
+function clearSugg(){ if(activeSugg){ activeSugg.span.replaceWith(document.createTextNode(activeSugg.original)); activeSugg.ctrl?.remove(); activeSugg=null; } }
+async function inlineSuggest(instruction){ if(!savedRange||!editor())return; clearSugg();
+  const orig=savedRange.toString(); const range=savedRange.cloneRange(); range.deleteContents();
+  const span=document.createElement('span'); span.className="sugg pending"; span.textContent=orig; range.insertNode(span); activeSugg={span,original:orig};
+  try{ const out=await callClaude(SYSTEM(), `${instruction}\n\nPassage:\n"""${orig}"""\n\nReturn only the rewritten passage.`); span.classList.remove('pending'); renderDiff(span,orig,(out||orig).trim()); placeCtrl(span); updateWC(); }
+  catch(e){ clearSugg(); aiError(); } }
+function applyFromChat(text){ if(savedRange&&editor()&&editor().contains(savedRange.commonAncestorContainer)&&savedRange.toString().trim()){
+    clearSugg(); const orig=savedRange.toString(); const range=savedRange.cloneRange(); range.deleteContents();
+    const span=document.createElement('span'); span.className="sugg"; range.insertNode(span); activeSugg={span,original:orig}; renderDiff(span,orig,text.trim()); placeCtrl(span); updateWC(); if(window.innerWidth<=980)closeDrawers();
+  } else if(editor()){ editor().focus(); document.execCommand('insertText',false,"\n"+text); updateWC(); queueSave(); } }
+
+/* ===================== MUSE / AI ===================== */
+let cfg={provider:"anthropic",anthropic:{key:"",model:"claude-sonnet-4-6"},openai:{key:"",model:"gpt-4o"}};
+let lastErr=""; const CKEY="crc_api_cfg_v5";
+async function loadCfg(){ try{ if(window.storage?.get){const r=await window.storage.get(CKEY); if(r&&r.value)return JSON.parse(r.value);} }catch(e){} try{ if(window.localStorage){const v=localStorage.getItem(CKEY); if(v)return JSON.parse(v);} }catch(e){} return null; }
+async function saveCfg(){ const s=JSON.stringify(cfg); try{ if(window.storage?.set){await window.storage.set(CKEY,s);return;} }catch(e){} try{ if(window.localStorage)localStorage.setItem(CKEY,s);}catch(e){} }
+async function callClaude(system,user){
+  const p=cfg.provider,c=cfg[p]||{}; if(!c.key){ lastErr="nokey"; throw new Error("nokey"); }
+  let url,headers,body,res;
+  if(p==="openai"){ url="https://api.openai.com/v1/chat/completions"; headers={"Content-Type":"application/json","Authorization":"Bearer "+c.key}; body={model:c.model||"gpt-4o",max_tokens:1000,messages:[{role:"system",content:system},{role:"user",content:user}]}; }
+  else { url="https://api.anthropic.com/v1/messages"; headers={"Content-Type":"application/json","x-api-key":c.key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"}; body={model:c.model||"claude-sonnet-4-6",max_tokens:1000,system,messages:[{role:"user",content:user}]}; }
+  try{ res=await fetch(url,{method:"POST",headers,body:JSON.stringify(body)}); }catch(e){ lastErr="network"; throw e; }
+  if(!res.ok){ let m=""; try{ m=(await res.json())?.error?.message||""; }catch(_){ } lastErr="http "+res.status+(m?" — "+m:""); throw new Error(lastErr); }
+  const d=await res.json(); if(p==="openai") return (d.choices?.[0]?.message?.content||"").trim();
+  return (d.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n").trim();
+}
+const MODES={
+  I:{tag:"Identity · I'll help you name it",sys:"You help the writer articulate who they are now — values, heroes, what matters. Ask sharpening questions; offer crisp phrasings. Keep it light.",chips:[["Help me name my values","q"],["Sharpen this","q"]]},
+  II:{tag:"Past · I'll ask, you write",sys:"This is the writer's past. The benefit comes from THEM drawing their own cause-and-effect conclusions, so never write their story for them. Ask one deepening question at a time. Draw the meaning out; do not narrate it.",chips:[["Ask me a deeper question","q"],["Help me find the lesson","q"]]},
+  III:{tag:"Present · I'll mirror it back",sys:"Help the writer interpret their own faults and virtues. Reflect patterns, connect a trait to their past, ask which moment proves it. Mirror, don't flatter or write for them.",chips:[["Mirror this back","q"],["Connect to my past","q"]]},
+  IV:{tag:"Future · step into the life you're becoming",sys:"You are co-authoring the writer's future life — not their goals. They are describing a life already being lived by the person they have become. Keep everything present-tense, experiential, sensory, emotional, and identity-based. NEVER frame anything as goal-setting, targets, KPIs, productivity, or generic self-improvement. Favour three kinds of questions: 'what would it look like if…' (vivid future reality), positive 'what if…' that loosens limiting beliefs, and identity questions ('who did you become to live this', 'what do you do naturally here', 'how does this feel now'). When you write, write the lived reality of the new self, in their voice.",chips:[["What would it look like if…","q"],["Who are you becoming here?","q"],["What if this came easily?","q"],["Describe a normal day","q"],["Future Self pass","rev"],["Make it vivid","rev"]]},
+  V:{tag:"Epilogue · I'll weave your future",sys:"Weave the writer's New Identity and Future areas into one flowing future chapter in their voice.",chips:[["Weave my future","q"],["Make it sing","rev"]]},
+};
+const REV={"Future Self pass":"Rewrite the current page from the writer's future self's perspective, already living it.","Consistency pass":"Rewrite the current page so it's fully consistent with the writer's New Identity.","Deeper reflection":"Rewrite the current page to surface what the writer seems to be avoiding or not yet saying.","Vision pass":"Rewrite the current page to be more vivid and emotionally compelling, without exaggerating.","Make it vivid":"Rewrite the current page to be more vivid, sensory and emotionally present — the lived reality of the new self, in present tense, never as goals.","Make it sing":"Polish the whole chapter so it reads beautifully and lands emotionally."};
+function curMode(){ return MODES[partOf(current)]||MODES.I; }
+function focusNote(){ const l=leaf(current); if(!l||!l.group) return ""; const f=state.futureFocus||[];
+  if(!f.length) return "";
+  if(f.includes(current)) return " This is one of the writer's focus areas for this cycle — encourage them to go deep here.";
+  return " Note: this isn't one of the writer's chosen focus areas this cycle ("+f.map(id=>leaf(id)?.title).filter(Boolean).join(", ")+"). Help fully if they're here, but you may gently remind them where their focus is."; }
+function SYSTEM(){ return "You are the Muse inside a personal life book (Identity → Past → Present → Threads → New Identity → Future). "+curMode().sys+focusNote()+" Be concise. Stay consistent with everything the writer has written."; }
+function setMuseMode(){ const m=curMode(); let tag=m.tag+" · sees your whole book";
+  const l=leaf(current); const f=state.futureFocus||[];
+  if(l&&l.group&&f.length){ tag = f.includes(current) ? "Future · a focus area this cycle" : "Future · available (not this cycle's focus)"; }
+  document.getElementById('mctx').textContent=tag;
+  const row=document.getElementById('qrow'); row.innerHTML="";
+  m.chips.forEach(([label,kind])=>{ const b=document.createElement('button'); b.className="chip"+(kind==="rev"?" rev":""); b.textContent=label;
+    b.onclick=()=> kind==="rev"? runReview(label,REV[label]) : runChip(label); row.appendChild(b); }); }
+function fullBookDigest(){ stashCurrent(); const parts=[];
+  allLeaves().forEach(l=>{ let t="";
+    if(l.type==="epochs") t=(state.epochs||[]).filter(e=>e.text.trim()).map(e=>`${e.title}: ${e.text}`).join("\n");
+    else if(l.type==="traits"){ const tt=state.traits[l.id]; if(tt.sel.length) t=tt.sel.map((w,i)=>`${i+1}. ${w}${tt.notes[w]?" ("+tt.notes[w]+")":""}`).join("; "); }
+    else if(l.type==="threads"){ if(state.threads?.insights?.length) t=state.threads.insights.join(" / "); }
+    else t=docText(state.docs[l.id]||"");
+    if(t){ if(t.length>420)t=t.slice(0,420)+"…"; parts.push(`【${l.title||l.name}】 ${t}`); } });
+  return parts.join("\n\n"); }
+function ctxText(){ const l=leaf(current)||{title:"Book"}; let cur="";
+  if(!l.type) cur="(book cover)"; else if(l.type==="epochs") cur="(epochs)"; else if(l.type==="traits"){ const tt=state.traits[l.id]; cur=tt.sel.join(", "); } else if(l.type==="threads"){ cur=(state.threads?.insights||[]).join(" / "); } else cur=editor()?editor().innerText.trim():"";
+  return `WHOLE BOOK:\n${fullBookDigest()}\n\nCURRENT PAGE — ${l.title||l.name}:\n${cur||"(blank)"}`; }
+
+function bubble(role,text,withTools,rerun){ const log=document.getElementById('mlog'); const e=log.querySelector('.mempty'); if(e)e.remove();
+  const c=document.createElement('div'); c.className="card "+role; c.textContent=text;
+  if(withTools){ const a=document.createElement('div'); a.className="acts";
+    a.append(mk("Copy",()=>navigator.clipboard?.writeText(text)),mk("Apply ✎",()=>applyFromChat(text)),
+      mk("Insert",()=>{ if(editor()){editor().focus();document.execCommand('insertText',false,"\n"+text);updateWC();queueSave();} }),
+      mk("Regenerate",()=>{ c.remove(); rerun&&rerun(); })); c.appendChild(a); }
+  log.appendChild(c); log.scrollTop=log.scrollHeight; return c; }
+function mk(t,fn){ const b=document.createElement('button'); b.textContent=t; b.onclick=fn; return b; }
+function flash(t){ bubble("m",t,false); if(window.innerWidth<=980) openDrawer('muse'); }
+function aiError(){ let msg; if(lastErr==="nokey")msg="The Muse needs a key. Tap “Connect” above, choose Claude or ChatGPT, paste your key, then try again.";
+  else if(lastErr==="network")msg="Couldn't reach the provider (network/CORS). If you've exported this file to a public site, route calls through a server proxy.";
+  else msg="The provider returned an error — "+lastErr+". A 401 means the key is wrong; a 404 means the model name in Connect needs changing."; bubble("m",msg,false); }
+async function runChip(label){ if(window.innerWidth<=980)openDrawer('muse'); bubble("u",label,false); const t=bubble("m","Composing…",false); t.classList.add('think');
+  const instr={"Help me name my values":"Help the writer name their core values from what they've written.","Sharpen this":"Sharpen and clarify what's on the current page.","Ask me a deeper question":"Ask one deep, specific question about the current page — do not answer it.","Help me find the lesson":"Help the writer draw the cause-and-effect lesson from the current page, by reflection and a question — don't write it for them.","Mirror this back":"Mirror the writer's current page back: what pattern do you see?","Connect to my past":"Connect the current trait to something in the writer's Past.","What would it look like if…":"Ask the writer one vivid 'what would it look like if…' question about this area of their future life — help them picture the lived reality in sensory detail. Present tense. Do not answer it.","Who are you becoming here?":"Ask the writer who they've had to become to live this part of their life — the qualities, mindset, and identity behind it. One warm, present-tense question. Don't answer it.","What if this came easily?":"Offer one gentle 'what if…' question that loosens a limiting belief about this area (e.g. what if this felt easier than you expected, what if you trusted yourself here). Don't answer it.","Describe a normal day":"Invite the writer to describe a normal day in this area of their future life — specific, sensory, present-tense, as the person they've become. Ask; don't write it for them.","Letter from future self":"Write a short letter from the writer's future self about the current page.","Weave my future":"Weave the writer's New Identity and Future areas into one flowing future chapter.","Make it sing":"Polish what's here so it reads beautifully."}[label]||label;
+  try{ const out=await callClaude(SYSTEM(),`${instr}\n\n---\n${ctxText()}`); t.remove(); bubble("m",out,true,()=>runChip(label)); }catch(e){ t.remove(); aiError(); } }
+async function runReview(label,instr){ if(!editor()){flash("Open a writing page to run a pass.");return;} if(window.innerWidth<=980)openDrawer('muse');
+  bubble("u","Review · "+label,false); const t=bubble("m","Running the pass…",false); t.classList.add('think');
+  try{ const out=await callClaude(SYSTEM(),`${instr}\n\nCurrent page:\n"""${editor().innerText.trim()}"""\n\nReturn only the rewritten page.`); t.remove(); bubble("m",out,true,()=>runReview(label,instr)); }catch(e){ t.remove(); aiError(); } }
+async function sendMsg(){ const i=document.getElementById('mInput'); const m=i.value.trim(); if(!m)return; i.value="";i.style.height='40px'; bubble("u",m,false);
+  const t=bubble("m","Thinking…",false); t.classList.add('think');
+  try{ const out=await callClaude(SYSTEM(),`The writer asks: "${m}"\n\n${ctxText()}`); t.remove(); bubble("m",out,true,()=>{document.getElementById('mInput').value=m;sendMsg();}); }catch(e){ t.remove(); aiError(); } }
+document.getElementById('mSend').onclick=sendMsg;
+document.getElementById('mInput').addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();} });
+document.getElementById('mInput').addEventListener('input',e=>{ e.target.style.height='40px'; e.target.style.height=Math.min(e.target.scrollHeight,120)+'px'; });
+
+/* connect */
+const PROV={anthropic:{label:"Claude",ph:"sk-ant-…",model:"claude-sonnet-4-6"},openai:{label:"ChatGPT",ph:"sk-…",model:"gpt-4o"}};
+let editProv="anthropic";
+function updateConnUI(){ const b=document.getElementById('connectBtn'); const a=document.getElementById('acctBtn'); const c=cfg[cfg.provider]||{};
+  if(c.key){ b.textContent="Connected · "+PROV[cfg.provider].label; b.classList.add('ok'); a.classList.add('ok'); }
+  else { b.textContent="Connect"; b.classList.remove('ok'); a.classList.remove('ok'); } }
+function fillCfg(){ document.querySelectorAll('#provSeg button').forEach(x=>x.classList.toggle('on',x.dataset.p===editProv)); const c=cfg[editProv]||{}, k=document.getElementById('cfgKey'), m=document.getElementById('cfgModel'); k.value=c.key||"";k.placeholder=PROV[editProv].ph;m.value=c.model||PROV[editProv].model;m.placeholder=PROV[editProv].model; }
+function stashCfg(){ cfg[editProv].key=document.getElementById('cfgKey').value.trim(); cfg[editProv].model=document.getElementById('cfgModel').value.trim()||PROV[editProv].model; }
+document.querySelectorAll('#provSeg button').forEach(btn=>btn.onclick=()=>{ stashCfg(); editProv=btn.dataset.p; fillCfg(); });
+document.getElementById('connectBtn').onclick=()=>toggleAcct(true);
+document.getElementById('cfgSave').onclick=async()=>{ stashCfg(); cfg.provider=editProv; await saveCfg(); updateConnUI(); if(cfg[editProv].key)flash("Connected to "+PROV[editProv].label+". The Muse is awake. ✦"); };
+
+/* account hub */
+function toggleAcct(show){ const p=document.getElementById('acctpop'); const on= show===undefined? !p.classList.contains('show') : show;
+  p.classList.toggle('show',on); if(on){ editProv=cfg.provider; fillCfg(); document.querySelectorAll('#themeSeg button').forEach(b=>b.classList.toggle('on',b.dataset.t===(cfg.theme||'dark'))); } }
+document.getElementById('acctBtn').onclick=()=>toggleAcct();
+document.addEventListener('mousedown',e=>{ const p=document.getElementById('acctpop'); if(p.classList.contains('show')&&!p.contains(e.target)&&e.target.id!=='acctBtn'&&e.target.id!=='connectBtn') toggleAcct(false); });
+
+/* theme */
+function applyTheme(t){ document.body.classList.toggle('light',t==='light'); cfg.theme=t; document.querySelectorAll('#themeSeg button').forEach(b=>b.classList.toggle('on',b.dataset.t===t)); }
+document.querySelectorAll('#themeSeg button').forEach(b=>b.onclick=()=>{ applyTheme(b.dataset.t); saveCfg(); });
+
+/* progress */
+function renderProgress(){ const all=allLeaves(); const done=all.filter(leafHasContent).length; const pct=all.length?Math.round(done/all.length*100):0;
+  const f=document.getElementById('progFill'), p=document.getElementById('progPct'); if(f)f.style.width=pct+"%"; if(p)p.textContent=pct+"%"; }
+
+/* onboarding */
+function closeOnboard(){ document.getElementById('onboard').classList.remove('show'); cfg.onboarded=true; saveCfg(); }
+document.getElementById('obConnect').onclick=()=>{ closeOnboard(); toggleAcct(true); };
+document.getElementById('obSkip').onclick=closeOnboard;
+
+/* export */
+function dl(name,txt){ const b=new Blob([txt],{type:"text/markdown"});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=name;a.click();URL.revokeObjectURL(u); }
+function exportBook(){ stashCurrent(); const c=state.cover||{}; let md=`# ${c.title||"My Full Life Book"}\n`; if(c.subtitle)md+=`*${c.subtitle}*\n`; if(c.quote)md+=`\n> ${c.quote}\n`; md+=`\n`;
+  BOOK.forEach(p=>{ md+=`\n## Part ${p.part} — ${p.name}\n\n`;
+    const leaves=p.lead?[{...p.lead,title:p.name}]:(p.children||[]);
+    leaves.forEach(l=>{
+      if(l.type==="epochs"){ (state.epochs||[]).forEach(e=>{ if(e.text.trim()) md+=`### ${e.title}\n\n${e.text}\n\n`; }); }
+      else if(l.type==="traits"){ const tt=state.traits[l.id]; if(tt.sel.length){ md+=`### ${l.title}\n\n`; tt.sel.forEach((w,i)=>{ md+=`${i+1}. **${w}**${tt.notes[w]?" — "+tt.notes[w]:""}\n`; }); md+="\n"; } }
+      else if(l.type==="threads"){ if(state.threads?.insights?.length){ md+=`### Threads of My Story\n\n`; state.threads.insights.forEach(t=>md+=`- ${t}\n`); if(state.threads.becoming)md+=`\n${state.threads.becoming}\n`; md+="\n"; } }
+      else { const t=docText(state.docs[l.id]||""); if(t) md+=`### ${l.title||l.name}\n\n${t}\n\n`; }
+    });
+  });
+  dl("my-life-book.md",md); }
+document.getElementById('acctExport').onclick=exportBook;
+document.getElementById('bookCard').onclick=selectBook;
+
+/* ===================== WORKSPACE LAYOUT ===================== */
+const LKEY="crc_layout_v1";
+let layout={railW:262,museW:356,railC:false,museC:false};
+function loadLayout(){ try{ const v=localStorage.getItem(LKEY); if(v) layout=Object.assign(layout,JSON.parse(v)); }catch(e){} }
+function saveLayout(){ try{ localStorage.setItem(LKEY,JSON.stringify(layout)); }catch(e){} }
+const app=()=>document.querySelector('.app');
+function applyLayout(){
+  const desktop=window.innerWidth>980;
+  app().style.setProperty('--rail-w', (layout.railC?52:layout.railW)+'px');
+  app().style.setProperty('--muse-w', (layout.museC?52:layout.museW)+'px');
+  app().classList.toggle('rail-collapsed', desktop&&layout.railC);
+  app().classList.toggle('muse-collapsed', desktop&&layout.museC);
+  document.getElementById('deskRail').classList.toggle('off', layout.railC);
+  document.getElementById('deskMuse').classList.toggle('off', layout.museC);
+  updateMiniCur();
+}
+function updateMiniCur(){ const mc=document.getElementById('railMiniCur'); if(!mc)return;
+  if(current==="__book"){ mc.innerHTML=lic('account'); return; }
+  const p=partOf(current); mc.innerHTML=lic(PART_ICON[p]||'user'); }
+function toggleRail(){ if(window.innerWidth<=980){ openDrawer('rail'); return; } layout.railC=!layout.railC; applyLayout(); saveLayout(); }
+function toggleMuse(){ if(window.innerWidth<=980){ openDrawer('muse'); return; } layout.museC=!layout.museC; applyLayout(); saveLayout(); }
+function startDrag(which,e){
+  if(window.innerWidth<=980) return; e.preventDefault();
+  const rect=app().getBoundingClientRect(); const rz=e.currentTarget; rz.classList.add('active'); app().classList.add('dragging');
+  function move(ev){ const x=ev.clientX;
+    if(which==='rail'){ layout.railW=Math.round(Math.max(220,Math.min(450, x-rect.left))); app().style.setProperty('--rail-w',layout.railW+'px'); }
+    else { layout.museW=Math.round(Math.max(280,Math.min(700, rect.right-x))); app().style.setProperty('--muse-w',layout.museW+'px'); } }
+  function up(){ document.removeEventListener('pointermove',move); document.removeEventListener('pointerup',up); rz.classList.remove('active'); app().classList.remove('dragging'); saveLayout(); }
+  document.addEventListener('pointermove',move); document.addEventListener('pointerup',up);
+}
+function initLayout(){
+  loadLayout();
+  document.getElementById('deskRail').innerHTML=lic('panelL');
+  document.getElementById('deskMuse').innerHTML=lic('panelR');
+  document.getElementById('railExpand').innerHTML=lic('chev');
+  document.getElementById('railMiniBook').innerHTML=lic('book');
+  document.getElementById('museExpand').innerHTML=lic('chevL');
+  document.getElementById('museCollapse').innerHTML=lic('chev');
+  document.getElementById('deskRail').onclick=toggleRail;
+  document.getElementById('deskMuse').onclick=toggleMuse;
+  document.getElementById('museCollapse').onclick=toggleMuse;
+  document.getElementById('railMini').onclick=()=>{ layout.railC=false; applyLayout(); saveLayout(); };
+  document.getElementById('museMini').onclick=()=>{ layout.museC=false; applyLayout(); saveLayout(); };
+  document.getElementById('rzRail').addEventListener('pointerdown',e=>startDrag('rail',e));
+  document.getElementById('rzMuse').addEventListener('pointerdown',e=>startDrag('muse',e));
+  document.addEventListener('keydown',e=>{
+    if(!(e.metaKey||e.ctrlKey)) return;
+    if(e.key==='/'){ e.preventDefault(); toggleRail(); }
+    else if(e.key==='.'){ e.preventDefault(); toggleMuse(); }
+  });
+  let rt; window.addEventListener('resize',()=>{ clearTimeout(rt); rt=setTimeout(applyLayout,120); });
+  applyLayout();
+}
+
+/* mobile */
+function openDrawer(w){ closeDrawers(); document.getElementById(w==='rail'?'rail':'muse').classList.add('open'); document.getElementById('scrim').classList.add('show'); }
+function closeDrawers(){ document.getElementById('rail').classList.remove('open'); document.getElementById('muse').classList.remove('open'); document.getElementById('scrim').classList.remove('show'); }
+document.getElementById('tgRail').onclick=()=>openDrawer('rail');
+document.getElementById('tgMuse').onclick=()=>openDrawer('muse');
+document.getElementById('scrim').onclick=closeDrawers;
+
+/* boot */
+(async function(){
+  const cf=await loadCfg(); if(cf){ if(cf.provider){cfg.provider=cf.provider;cfg.anthropic=Object.assign(cfg.anthropic,cf.anthropic||{});cfg.openai=Object.assign(cfg.openai,cf.openai||{});} if(cf.theme)cfg.theme=cf.theme; if(cf.onboarded)cfg.onboarded=cf.onboarded; }
+  const saved=await Store.load(); if(saved) state=Object.assign(state,saved);
+  if(!state.traits) state.traits={faults:{sel:[],notes:{}},virtues:{sel:[],notes:{}}};
+  if(!state.threads) state.threads={repeats:[],insights:[],becoming:""};
+  if(!state.cover) state.cover={title:"",subtitle:"",quote:""};
+  if(!state.futureFocus) state.futureFocus=[];
+  if(!state.focusCycle) state.focusCycle=1;
+  if(!state.focusHistory) state.focusHistory=[];
+  applyTheme(cfg.theme||'dark');
+  initLayout();
+  fillCfg(); updateConnUI(); selectLeaf('identity_now');
+  if(!cfg.onboarded) setTimeout(()=>document.getElementById('onboard').classList.add('show'),400);
+})();
+</script>
