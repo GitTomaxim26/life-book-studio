@@ -3,14 +3,18 @@
 
 import type { MuseMode, Theme } from "@/lib/types";
 
-const LABEL: Record<MuseMode, string> = {
-  helper: "Helper",
-  questioner: "Questioner",
-  mirror: "Mirror",
-  synthesizer: "Synthesizer",
-  coauthor: "Co-author",
-  weaver: "Weaver",
-  editor: "Editor",
+// The Muse is present from the first moment — before any AI exists.
+// It speaks as a companion to the writing, never about how it's built.
+const PRESENCE: Record<MuseMode, string> = {
+  helper: "Here, I help you find the words for who you already are.",
+  questioner: "Here, I mostly ask. The story is yours to tell.",
+  mirror: "Here, I reflect back what you write — and what hides beneath it.",
+  synthesizer:
+    "Here, I listen for the threads that run through everything you’ve written.",
+  coauthor:
+    "Here, we write the life you’re moving toward, as if it were already yours.",
+  weaver: "Here, I help you weave the chapters into one.",
+  editor: "Here, I read alongside you, and help you see it again.",
 };
 
 export default function MusePanel({
@@ -26,23 +30,12 @@ export default function MusePanel({
     <div>
       <div className="muse-head">
         <h2>The Muse</h2>
-        <button
-          onClick={onToggleTheme}
-          className="cover-links"
-          style={{ background: "transparent", border: "none", color: "var(--muted)", cursor: "pointer", fontSize: 12.5 }}
-        >
+        <button className="muse-edition" onClick={onToggleTheme}>
           {theme === "night" ? "Linen edition" : "Velvet edition"}
         </button>
       </div>
-      <p className="muse-note">
-        Mode here: <strong style={{ color: "var(--text-2)" }}>{LABEL[mode]}</strong>. The Muse changes character by
-        section — it asks in the Past, mirrors in the Present, co-authors in the
-        Future.
-      </p>
-      <p className="muse-note" style={{ marginTop: 14 }}>
-        Wired in <strong style={{ color: "var(--text-2)" }}>step 10</strong> to a streaming
-        <code> /api/muse </code> route handler. Keys stay server-side.
-      </p>
+      <p className="muse-presence">{PRESENCE[mode]}</p>
+      <p className="muse-quiet">Begin writing, and I’ll meet you in it.</p>
     </div>
   );
 }

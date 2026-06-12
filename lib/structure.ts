@@ -105,3 +105,19 @@ export function museModeFor(id: string): import("./types").MuseMode {
   if (id === "vision") return "weaver";
   return "coauthor"; // new_identity, future areas, future_to_avoid
 }
+
+/** Resolve a section id to its part label + title (for chapter headings). */
+export function leafInfo(
+  id: string
+): { partLabel: string; title: string } | null {
+  for (const p of OUTLINE) {
+    const partLabel =
+      p.part === "turning" ? "The Turning Point" : `Part ${p.part} · ${p.name}`;
+    if (p.lead?.id === id) return { partLabel, title: p.lead.title };
+    const child = p.children?.find((l) => l.id === id);
+    if (child) return { partLabel, title: child.title };
+  }
+  const area = FUTURE_AREAS.find((a) => a.id === id);
+  if (area) return { partLabel: "Part IV · Future", title: area.title };
+  return null;
+}

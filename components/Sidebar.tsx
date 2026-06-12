@@ -8,6 +8,15 @@ import { OUTLINE, GROUPS, FUTURE_AREAS } from "@/lib/structure";
 const writtenCount = (b: Book) =>
   Object.values(b.docs).filter((d) => d.wordCount > 0).length;
 
+const BookMark = () => (
+  <span className="rail-book-mark" aria-hidden>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+    </svg>
+  </span>
+);
+
 export default function Sidebar({
   book,
   active,
@@ -21,6 +30,7 @@ export default function Sidebar({
 }) {
   const gateThreads = threadsWoven(book);
   const gateFuture = futureUnlocked(book);
+  const written = writtenCount(book);
 
   return (
     <div>
@@ -28,10 +38,14 @@ export default function Sidebar({
         className={`rail-book ${active === "__book" ? "active" : ""}`}
         onClick={onOpenBook}
       >
-        <span aria-hidden>📖</span>
+        <BookMark />
         <div>
           <h1>Full Life Book</h1>
-          <small>{writtenCount(book)} sections written</small>
+          <small>
+            {written === 0
+              ? "your story, still unwritten"
+              : `${written} ${written === 1 ? "chapter" : "chapters"} begun`}
+          </small>
         </div>
       </div>
 
@@ -61,7 +75,7 @@ export default function Sidebar({
             if (l.id === "new_identity" && !gateThreads) {
               return (
                 <div className="rail-item locked" key={l.id}>
-                  Unlocks when you weave your Threads
+                  Begins once your Threads are woven
                 </div>
               );
             }
@@ -99,7 +113,7 @@ export default function Sidebar({
               </>
             ) : (
               <div className="rail-item locked">
-                The future opens once your New Identity is written
+                Opens once you’ve met your new self
               </div>
             ))}
         </div>

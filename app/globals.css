@@ -210,17 +210,76 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 10px;
+  margin-bottom: 14px;
 }
 .muse-head h2 {
   font-family: var(--serif);
   font-size: 16px;
   margin: 0;
 }
+.muse-edition {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-family: var(--ui);
+  font-size: 12px;
+  cursor: pointer;
+  transition: color 0.14s;
+}
+.muse-edition:hover {
+  color: var(--text-2);
+}
+.muse-presence {
+  font-family: var(--read);
+  font-style: italic;
+  font-size: 16px;
+  line-height: 1.72;
+  color: var(--text-2);
+  margin: 6px 0 0;
+}
+.muse-quiet {
+  font-family: var(--read);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--muted-2);
+  margin-top: 16px;
+}
 .muse-note {
   color: var(--muted);
   font-size: 13px;
   line-height: 1.6;
+}
+
+/* ===== Unwritten chapter (book voice, never "not built") ===== */
+.chapter-blank {
+  padding: 15vh 0 0;
+  text-align: center;
+}
+.chapter-blank-title {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 34px;
+  margin: 8px 0 0;
+  color: var(--text);
+}
+.chapter-blank-line {
+  font-family: var(--read);
+  font-style: italic;
+  font-size: 18px;
+  line-height: 1.7;
+  color: var(--muted);
+  max-width: 32ch;
+  margin: 18px auto 0;
+}
+
+/* Sidebar book mark */
+.rail-book-mark {
+  color: var(--rose);
+  display: flex;
+}
+.rail-book-mark svg {
+  width: 19px;
+  height: 19px;
 }
 
 /* ===================================================================== */
