@@ -37,6 +37,31 @@ export function identitySeedContent(): DocJSON {
   };
 }
 
+/** Key Experiences (Part II · Past) — formative moments, in the user's own words. */
+export function keyExperiencesSeedContent(): DocJSON {
+  return {
+    type: "doc",
+    content: [
+      h2("Turning points"),
+      prompt("Which moments split your life into a before and an after?"),
+      blank(),
+      h2("Hardest seasons"),
+      prompt(
+        "What did you live through that you weren't sure you would — and what did it leave you with?"
+      ),
+      blank(),
+      h2("Unexpected gifts"),
+      prompt("What good arrived that you never planned for, and how did it change you?"),
+      blank(),
+      h2("People who shaped you"),
+      prompt(
+        "Who altered the course of your life, and what did they show you about who you are?"
+      ),
+      blank(),
+    ],
+  };
+}
+
 /** True when a doc is empty or only a blank paragraph — seed may apply. */
 export function isDocEmpty(content: DocJSON | null | undefined): boolean {
   if (!content || typeof content !== "object") return true;

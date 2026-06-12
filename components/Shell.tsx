@@ -6,9 +6,11 @@ import type { Book } from "@/lib/types";
 import Sidebar from "./Sidebar";
 import Cover from "./Cover";
 import IdentityPage from "./IdentityPage";
+import ChapterPage from "./ChapterPage";
 import MusePanel from "./MusePanel";
 import TopBar from "./TopBar";
 import { museModeFor, leafInfo } from "@/lib/structure";
+import { CHAPTERS } from "@/lib/chapters";
 
 const BOOK_ID = "__book";
 
@@ -39,6 +41,8 @@ export default function Shell({ initialBook }: { initialBook: Book }) {
   const toggleTheme = () =>
     setBook((b) => ({ ...b, theme: b.theme === "night" ? "paper" : "night" }));
 
+  const chapter = active === BOOK_ID ? null : CHAPTERS[active];
+
   return (
     <div className="app-frame">
       <TopBar active={active} />
@@ -61,6 +65,14 @@ export default function Shell({ initialBook }: { initialBook: Book }) {
             />
           ) : active === "identity_now" ? (
             <IdentityPage book={book} onChange={setBook} />
+          ) : chapter ? (
+            <ChapterPage
+              book={book}
+              onChange={setBook}
+              slug={chapter.slug}
+              lede={chapter.lede}
+              seed={chapter.seed?.()}
+            />
           ) : (
             <div className="center-inner">
               <UnwrittenChapter id={active} />
