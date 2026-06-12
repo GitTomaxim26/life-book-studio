@@ -60,9 +60,7 @@ export default function Shell({ initialBook }: { initialBook: Book }) {
               onOpen={() => setActive("identity_now")}
             />
           ) : active === "identity_now" ? (
-            <div className="center-inner">
-              <IdentityPage book={book} onChange={setBook} />
-            </div>
+            <IdentityPage book={book} onChange={setBook} />
           ) : (
             <div className="center-inner">
               <UnwrittenChapter id={active} />

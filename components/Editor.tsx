@@ -1,47 +1,71 @@
-// components/Editor.tsx
 "use client";
 
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
-import { useEffect } from "react";
+import Underline from "@tiptap/extension-underline";
+import { useEffect, useMemo, type ReactNode } from "react";
 import type { DocJSON } from "@/lib/types";
+import { PromptParagraph } from "@/lib/tiptap-prompt-paragraph";
+import { isDocEmpty } from "@/lib/seeds";
+import EditorToolbar from "./EditorToolbar";
 
-/**
- * The production editor. Replaces the prototype's contenteditable + hand-rolled
- * word diff. Tracked changes / suggestions get added later as a ProseMirror
- * plugin — do NOT reintroduce the manual LCS diff.
- */
 export default function Editor({
   value,
   placeholder,
   onChange,
+  showToolbar = false,
+  seed,
+  header,
 }: {
   value: DocJSON;
   placeholder?: string;
   onChange: (doc: DocJSON, wordCount: number) => void;
+  showToolbar?: boolean;
+  /** Applied only when `value` is empty — a starting chapter shape, not permanent chrome. */
+  seed?: DocJSON;
+  header?: ReactNode;
 }) {
+  const initialContent = useMemo(() => {
+    if (seed && isDocEmpty(value)) return seed as object;
+    return (value as object) ?? undefined;
+  }, [value, seed]);
+
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        paragraph: false,
+        heading: { levels: [2] },
+      }),
+      PromptParagraph,
+      Underline,
       Placeholder.configure({ placeholder: placeholder ?? "Begin here…" }),
     ],
-    content: (value as object) ?? undefined,
+    content: initialContent,
     editorProps: { attributes: { class: "tiptap" } },
-    immediatelyRender: false, // required for Next SSR
-    onUpdate: ({ editor }) => {
-      const words = editor.getText().trim();
-      onChange(editor.getJSON(), words ? words.split(/\s+/).length : 0);
+    immediatelyRender: false,
+    onUpdate: ({ editor: ed }) => {
+      const words = ed.getText().trim();
+      onChange(ed.getJSON(), words ? words.split(/\s+/).length : 0);
     },
   });
 
-  // Keep external doc swaps (e.g. loading from Supabase) in sync.
   useEffect(() => {
-    if (editor && value && editor.isEmpty) {
-      editor.commands.setContent(value as object);
+    if (!editor) return;
+    if (seed && isDocEmpty(value)) {
+      editor.commands.setContent(seed as object);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editor]);
+  }, [editor, seed, value]);
 
-  return <EditorContent editor={editor} />;
+  return (
+    <div className="doc-page">
+      {showToolbar && editor && <EditorToolbar editor={editor} />}
+      <div className="doc-scroll">
+        <div className="doc-wrap">
+          {header}
+          <EditorContent editor={editor} />
+        </div>
+      </div>
+    </div>
+  );
 }

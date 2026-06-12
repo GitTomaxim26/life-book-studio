@@ -27,6 +27,8 @@
   --active-bg: #2b2935;
   --active-ink: #ffffff;
   --bg-2: #19181f;
+  --surface: #1f1e26;
+  --surface-2: #25232d;
 }
 
 /* Paper (linen-bound room) */
@@ -47,10 +49,15 @@ body.light {
   --active-bg: #ece0c8;
   --active-ink: #241f2e;
   --bg-2: #efe9db;
+  --surface: #fdfaf2;
+  --surface-2: #f2ebdc;
 }
 
 * {
   box-sizing: border-box;
+}
+::selection {
+  background: rgba(227, 167, 102, 0.32);
 }
 html,
 body {
@@ -122,7 +129,11 @@ body {
   flex-direction: column;
 }
 .center {
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+  background: var(--bg);
 }
 .center-inner {
   max-width: 660px;
@@ -302,17 +313,158 @@ body {
   transition: width 0.55s cubic-bezier(0.2, 0.7, 0.3, 1);
 }
 
-/* ===== Editor (TipTap) base ===== */
+/* ===== Chapter page + editor ===== */
+.doc-page {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+}
+.doc-scroll {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  justify-content: center;
+  padding: 34px 28px 120px;
+}
+.doc-wrap {
+  width: 100%;
+  max-width: 660px;
+}
+.doc-head {
+  margin-bottom: 18px;
+}
+.doc-head-eb {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--rose-2);
+  font-weight: 600;
+}
+.doc-head-title {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 30px;
+  line-height: 1.08;
+  margin: 7px 0 5px;
+}
+.doc-head-lede {
+  font-family: var(--read);
+  font-style: italic;
+  color: var(--muted);
+  font-size: 15.5px;
+  margin: 0;
+}
+
+/* Formatting bar — prototype .toolbar */
+.editor-toolbar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 7px 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg-2);
+  flex-wrap: wrap;
+}
+.editor-tool {
+  height: 30px;
+  min-width: 30px;
+  padding: 0 7px;
+  border-radius: 7px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-2);
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.12s;
+  cursor: pointer;
+  font-family: inherit;
+}
+.editor-tool:hover:not(:disabled) {
+  background: var(--surface-2);
+  color: var(--text);
+}
+.editor-tool.on {
+  background: var(--surface-2);
+  color: var(--amber-2);
+}
+.editor-tool:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.editor-tool b {
+  font-weight: 700;
+}
+.editor-tool i {
+  font-style: italic;
+}
+.editor-tool u {
+  text-decoration: underline;
+}
+.editor-tool s {
+  text-decoration: line-through;
+}
+.editor-tdiv {
+  width: 1px;
+  height: 18px;
+  background: var(--line-2);
+  margin: 0 5px;
+}
+.editor-tsel {
+  height: 30px;
+  border-radius: 7px;
+  border: 1px solid var(--line-2);
+  background: var(--surface);
+  color: var(--text-2);
+  font-size: 12.5px;
+  padding: 0 8px;
+  font-family: inherit;
+}
+
+/* TipTap prose — prototype .editor */
 .tiptap {
   outline: none;
   font-family: var(--read);
-  font-size: 18px;
-  line-height: 1.8;
+  font-size: 17px;
+  line-height: 1.75;
   color: var(--text);
-  min-height: 60vh;
+  min-height: 46vh;
+}
+.tiptap:focus {
+  outline: none;
 }
 .tiptap p {
-  margin: 0 0 1em;
+  margin: 0 0 14px;
+}
+.tiptap p[data-prompt="true"],
+.tiptap p.prompt {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 15px;
+  color: var(--amber-2);
+  margin: 24px 0 6px;
+}
+.tiptap h2 {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 22px;
+  margin: 28px 0 8px;
+}
+.tiptap blockquote {
+  border-left: 2px solid var(--rose);
+  margin: 14px 0;
+  padding: 2px 0 2px 16px;
+  color: var(--text-2);
+  font-style: italic;
+}
+.tiptap ul,
+.tiptap ol {
+  margin: 0 0 14px;
+  padding-left: 24px;
 }
 .tiptap p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
@@ -321,6 +473,7 @@ body {
   height: 0;
   pointer-events: none;
 }
+
 .page-eyebrow {
   font-family: var(--ui);
   font-size: 10px;
@@ -512,11 +665,13 @@ body {
 /* ===================================================================== */
 .cover-stage {
   position: relative;
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 4.5vh 0 12px;
+  padding: 8vh 0 10vh;
 }
 .cover-stage::before {
   content: "";
@@ -693,23 +848,27 @@ body.light .cover-stage::before {
   flex-direction: column;
   align-items: center;
   gap: 15px;
-  margin-bottom: 30px;
+  margin-top: 8px;
+  margin-bottom: 0;
 }
 .cover-begin {
   background: linear-gradient(135deg, var(--amber), var(--rose));
   color: #1a1320;
   border: none;
   border-radius: 11px;
-  padding: 12px 30px;
+  padding: 11px 28px;
   font-weight: 600;
-  font-size: 13.5px;
+  font-size: 13px;
   font-family: var(--ui);
-  filter: saturate(0.9);
+  filter: saturate(0.72) brightness(0.96);
+  opacity: 0.88;
   transition: 0.14s;
   cursor: pointer;
+  box-shadow: none;
 }
 .cover-begin:hover {
-  filter: saturate(0.9) brightness(1.06);
+  filter: saturate(0.78) brightness(1);
+  opacity: 0.95;
 }
 .cover-links {
   display: flex;

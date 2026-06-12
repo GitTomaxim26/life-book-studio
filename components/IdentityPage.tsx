@@ -1,7 +1,7 @@
-// components/IdentityPage.tsx
 "use client";
 
 import type { Book, DocJSON } from "@/lib/types";
+import { identitySeedContent } from "@/lib/seeds";
 import Editor from "./Editor";
 
 export default function IdentityPage({
@@ -21,22 +21,21 @@ export default function IdentityPage({
         identity_now: { content, wordCount, updatedAt: new Date().toISOString() },
       },
     });
-    // STEP 9: debounce this and persist to Supabase here.
   };
 
   return (
-    <div>
-      <div className="page-eyebrow">Part I · Identity</div>
-      <h2 className="page-title">Identity (Now)</h2>
-      <p className="muse-note" style={{ marginBottom: 18 }}>
-        The lens the whole book is written through. Who are you, honestly, today —
-        your heroes, your anti-heroes, what you value, what you believe?
-      </p>
-      <Editor
-        value={doc.content}
-        placeholder="I am someone who…"
-        onChange={update}
-      />
-    </div>
+    <Editor
+      showToolbar
+      value={doc.content}
+      seed={identitySeedContent()}
+      onChange={update}
+      header={
+        <div className="doc-head">
+          <div className="doc-head-eb">Part I · Identity</div>
+          <h1 className="doc-head-title">Identity (Now)</h1>
+          <p className="doc-head-lede">Who is holding the pen?</p>
+        </div>
+      }
+    />
   );
 }

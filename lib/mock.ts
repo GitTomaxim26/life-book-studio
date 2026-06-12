@@ -4,6 +4,7 @@
 
 import type { Book, Doc } from "./types";
 import { FUTURE_AREAS } from "./structure";
+import { identitySeedContent, wordCountFromDoc } from "./seeds";
 
 const now = () => new Date().toISOString();
 
@@ -14,15 +15,14 @@ export const emptyDoc = (): Doc => ({
   updatedAt: now(),
 });
 
-/** A doc seeded with one paragraph of text (mock only). */
-const seededDoc = (text: string): Doc => ({
-  content: {
-    type: "doc",
-    content: [{ type: "paragraph", content: [{ type: "text", text }] }],
-  },
-  wordCount: text.trim().split(/\s+/).length,
-  updatedAt: now(),
-});
+const identityDoc = (): Doc => {
+  const content = identitySeedContent();
+  return {
+    content,
+    wordCount: wordCountFromDoc(content),
+    updatedAt: now(),
+  };
+};
 
 export const mockBook: Book = {
   id: "mock-book",
@@ -34,9 +34,7 @@ export const mockBook: Book = {
     begunAt: now(),
   },
   docs: {
-    identity_now: seededDoc(
-      "I am someone who notices the gap between what I admire and how I actually spend my days. The heroes I keep returning to are the patient ones — people who built something slowly and stayed."
-    ),
+    identity_now: identityDoc(),
     key_exp: emptyDoc(),
     new_identity: emptyDoc(),
     future_to_avoid: emptyDoc(),
