@@ -32,25 +32,124 @@ export interface AreaDef {
   group: FutureGroup;
   title: string;
   hint?: string;
+  frame?: string; // one-line "why this room matters" shown above the editor (not saved)
 }
 
 export const FUTURE_AREAS: AreaDef[] = [
-  { id: "f_spiritual", group: "inner", title: "Spiritual Life & Self-Development" },
-  { id: "f_emotional", group: "inner", title: "Emotional Life & Environment" },
-  { id: "f_intellect", group: "inner", title: "Intellectual Life & Traits" },
-  { id: "f_personality", group: "inner", title: "Personality, Character & Appearance" },
-  { id: "f_health", group: "body", title: "Health & Wellbeing", hint: "sleep, nutrition, energy, mental wellbeing, longevity" },
-  { id: "f_fitness", group: "body", title: "Fitness", hint: "strength, body composition, athleticism, mobility, performance" },
-  { id: "f_environment", group: "body", title: "Physical & Living Environment" },
-  { id: "f_work", group: "work", title: "Work Life" },
-  { id: "f_business", group: "work", title: "Business" },
-  { id: "f_financial", group: "work", title: "Financial Life" },
-  { id: "f_social", group: "relationships", title: "Social Life & Community" },
-  { id: "f_relationships", group: "relationships", title: "Relationships" },
-  { id: "f_family", group: "relationships", title: "Parenting & Family Dynamics" },
-  { id: "f_quality", group: "lifestyle", title: "Quality of Life" },
-  { id: "f_lifestyle", group: "lifestyle", title: "Lifestyle & Experiences" },
-  { id: "f_purpose", group: "purpose", title: "Purpose, Legacy & Making a Difference" },
+  {
+    id: "f_spiritual",
+    group: "inner",
+    title: "Spiritual Life & Self-Development",
+    frame:
+      "This is where you tend to what\u2019s beneath everything else \u2014 your relationship to meaning, to growth, to whatever you hold sacred. The inner work the rest of your life rests on.",
+  },
+  {
+    id: "f_emotional",
+    group: "inner",
+    title: "Emotional Life & Environment",
+    frame:
+      "Here you describe the inner weather you want to live in \u2014 how you want to feel day to day, and what kind of emotional ground you\u2019re choosing to stand on.",
+  },
+  {
+    id: "f_intellect",
+    group: "inner",
+    title: "Intellectual Life & Traits",
+    frame:
+      "This is the life of your mind \u2014 what you want to learn, think about, and stay curious toward. The ideas you want to keep growing into.",
+  },
+  {
+    id: "f_personality",
+    group: "inner",
+    title: "Personality, Character & Appearance",
+    frame:
+      "This is where you describe the person others meet \u2014 the character you\u2019re building, and the way you want to carry yourself through the world.",
+  },
+  {
+    id: "f_health",
+    group: "body",
+    title: "Health & Wellbeing",
+    hint: "sleep, nutrition, energy, mental wellbeing, longevity",
+    frame:
+      "Your future is carried by your body. This is where you imagine the energy, vitality, and wellbeing that make the rest of the life you\u2019re building possible.",
+  },
+  {
+    id: "f_fitness",
+    group: "body",
+    title: "Fitness",
+    hint: "strength, body composition, athleticism, mobility, performance",
+    frame:
+      "This is where you describe what your body can do \u2014 the strength, capability, and physical confidence you want to live inside of.",
+  },
+  {
+    id: "f_environment",
+    group: "body",
+    title: "Physical & Living Environment",
+    frame:
+      "The spaces you live in shape who you become in them. This is where you describe the home and surroundings that hold the life you\u2019re building.",
+  },
+  {
+    id: "f_work",
+    group: "work",
+    title: "Work Life",
+    frame:
+      "This is where you describe the work itself \u2014 what you spend your days doing, and what you want that work to mean to you.",
+  },
+  {
+    id: "f_business",
+    group: "work",
+    title: "Business",
+    frame:
+      "This is where you imagine what you build and own \u2014 the ventures, the value you create, and the way you want to make your mark.",
+  },
+  {
+    id: "f_financial",
+    group: "work",
+    title: "Financial Life",
+    frame:
+      "Money is freedom made practical. This is where you describe the relationship to wealth that supports the life you actually want \u2014 not the one you\u2019re told to want.",
+  },
+  {
+    id: "f_social",
+    group: "relationships",
+    title: "Social Life & Community",
+    frame:
+      "This is where you describe the wider circle you want around you \u2014 the friendships, the belonging, the community a full life is lived within.",
+  },
+  {
+    id: "f_relationships",
+    group: "relationships",
+    title: "Relationships",
+    frame:
+      "No future is built alone. This is where you describe the closest bonds \u2014 the love, partnership, and connection you want your life to be surrounded by.",
+  },
+  {
+    id: "f_family",
+    group: "relationships",
+    title: "Parenting & Family Dynamics",
+    frame:
+      "This is where you describe the family you come from and the one you\u2019re creating \u2014 the dynamics you want to nurture, and the ones you\u2019re choosing to change.",
+  },
+  {
+    id: "f_quality",
+    group: "lifestyle",
+    title: "Quality of Life",
+    frame:
+      "This is where you describe the texture of an ordinary day \u2014 the rhythm, ease, and richness you want your everyday life to actually feel like.",
+  },
+  {
+    id: "f_lifestyle",
+    group: "lifestyle",
+    title: "Lifestyle & Experiences",
+    frame:
+      "A life is made of what you do with it. This is where you imagine the experiences, adventures, and ways of living you want to fill your years with.",
+  },
+  {
+    id: "f_purpose",
+    group: "purpose",
+    title: "Purpose, Legacy & Making a Difference",
+    frame:
+      "This is the place where contribution becomes visible \u2014 not what you achieve, but the difference you hope your life leaves behind.",
+  },
 ];
 
 export const OUTLINE: PartDef[] = [

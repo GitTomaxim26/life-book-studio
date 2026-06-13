@@ -7,9 +7,11 @@ import Sidebar from "./Sidebar";
 import Cover from "./Cover";
 import IdentityPage from "./IdentityPage";
 import ChapterPage from "./ChapterPage";
+import ThreadsPage from "./ThreadsPage";
+import FutureAreaPage from "./FutureAreaPage";
 import MusePanel from "./MusePanel";
 import TopBar from "./TopBar";
-import { museModeFor, leafInfo } from "@/lib/structure";
+import { museModeFor, leafInfo, FUTURE_AREAS } from "@/lib/structure";
 import { CHAPTERS } from "@/lib/chapters";
 
 const BOOK_ID = "__book";
@@ -42,6 +44,8 @@ export default function Shell({ initialBook }: { initialBook: Book }) {
     setBook((b) => ({ ...b, theme: b.theme === "night" ? "paper" : "night" }));
 
   const chapter = active === BOOK_ID ? null : CHAPTERS[active];
+  const isArea =
+    active !== BOOK_ID && FUTURE_AREAS.some((a) => a.id === active);
 
   return (
     <div className="app-frame">
@@ -65,6 +69,10 @@ export default function Shell({ initialBook }: { initialBook: Book }) {
             />
           ) : active === "identity_now" ? (
             <IdentityPage book={book} onChange={setBook} />
+          ) : active === "threads" ? (
+            <ThreadsPage book={book} onChange={setBook} />
+          ) : isArea ? (
+            <FutureAreaPage book={book} onChange={setBook} slug={active} />
           ) : chapter ? (
             <ChapterPage
               book={book}
@@ -85,6 +93,8 @@ export default function Shell({ initialBook }: { initialBook: Book }) {
             mode={active === BOOK_ID ? "weaver" : museModeFor(active)}
             onToggleTheme={toggleTheme}
             theme={book.theme}
+            active={active}
+            book={book}
           />
         </aside>
       </div>

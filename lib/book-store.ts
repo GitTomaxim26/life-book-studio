@@ -1,9 +1,10 @@
 // lib/book-store.ts
-// Turns Supabase rows into the Book shape the app already uses, and saves changes back.
-// Step 5 wires Identity end-to-end; the same saveSection works for every doc section later.
+// Turns Supabase rows into the Book shape the app uses, and saves changes back.
+// Prose chapters live in `sections.content`; structured sections (Threads) live in
+// `sections.structured`. Future-area docs live in `future_areas`.
 
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Book, Doc, FutureArea } from "@/lib/types";
+import type { Book, Doc, FutureArea, ThreadsResult } from "@/lib/types";
 import { FUTURE_AREAS } from "@/lib/structure";
 import * as seeds from "@/lib/seeds";
 
@@ -29,6 +30,25 @@ const emptyDoc = (): Doc => ({
 
 // Part I–V prose sections keyed by slug.
 const DOC_SLUGS = ["identity_now", "key_exp", "new_identity", "future_to_avoid", "vision"];
+
+const emptyThreads = (): ThreadsResult => ({ repeats: [], insights: [], becoming: "" });
+
+/** Coerce whatever is in the DB into a safe ThreadsResult (never trust shape blindly). */
+function asThreads(structured: unknown): ThreadsResult {
+  const t = (structured ?? {}) as Partial<ThreadsResult>;
+  return {
+    // `repeats` stays reserved for the future Muse — never authored or computed here.
+    repeats: Array.isArray(t.repeats) ? t.repeats : [],
+    insights: Array.isArray(t.insights) ? t.insights.filter((s) => typeof s === "string") : [],
+    becoming: typeof t.becoming === "string" ? t.becoming : "",
+  };
+}
+
+/** Honest word count of the AUTHORED threads text (insights + becoming). */
+function threadsWordCount(t: ThreadsResult): number {
+  const text = [...t.insights, t.becoming].join(" ").trim();
+  return text ? text.split(/\s+/).length : 0;
+}
 
 /** Load the signed-in user's book, creating it (and seeding Identity) on first visit. */
 export async function loadOrCreateBook(
@@ -61,12 +81,13 @@ export async function loadOrCreateBook(
     });
   }
 
-  // 2) sections → docs map
+  // 2) sections
   const { data: sectionRows } = await sb
     .from("sections")
     .select("*")
     .eq("book_id", bookRow.id);
 
+  // 2a) prose docs (only the doc slugs — structured sections never enter docs)
   const docs: Record<string, Doc> = {};
   for (const slug of DOC_SLUGS) {
     docs[slug] =
@@ -75,12 +96,17 @@ export async function loadOrCreateBook(
         : emptyDoc();
   }
   for (const r of sectionRows ?? []) {
+    if (!DOC_SLUGS.includes(r.slug)) continue; // skip threads + any structured section
     docs[r.slug] = {
       content: r.content,
       wordCount: r.word_count ?? 0,
       updatedAt: r.updated_at ?? now(),
     };
   }
+
+  // 2b) Threads (structured) — authored insights + becoming; repeats reserved for the Muse
+  const threadsRow = (sectionRows ?? []).find((r: any) => r.slug === "threads");
+  const threads: ThreadsResult = threadsRow ? asThreads(threadsRow.structured) : emptyThreads();
 
   // 3) future areas (16) — overlay any saved rows onto the fixed config
   const { data: areaRows } = await sb
@@ -117,7 +143,7 @@ export async function loadOrCreateBook(
       faults: { selected: [], order: [], notes: {} },
       virtues: { selected: [], order: [], notes: {} },
     },
-    threads: { repeats: [], insights: [], becoming: "" },
+    threads,
     futureAreas,
     focusCycle: bookRow.focus_cycle ?? 1,
     focusAreaIds: [],
@@ -125,7 +151,7 @@ export async function loadOrCreateBook(
   };
 }
 
-/** Upsert a prose section. Same call works for Identity now and every doc section later. */
+/** Upsert a prose section (content). Works for Identity and every doc chapter. */
 export async function saveSection(
   sb: SupabaseClient,
   bookId: string,
@@ -139,6 +165,49 @@ export async function saveSection(
       book_id: bookId,
       slug,
       kind,
+      content,
+      word_count: wordCount,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "book_id,slug" }
+  );
+  if (error) throw error;
+}
+
+/** Upsert the Threads section into the `structured` column (NOT `content`). */
+export async function saveThreads(
+  sb: SupabaseClient,
+  bookId: string,
+  threads: ThreadsResult
+): Promise<void> {
+  const { error } = await sb.from("sections").upsert(
+    {
+      book_id: bookId,
+      slug: "threads",
+      kind: "threads",
+      structured: threads,
+      word_count: threadsWordCount(threads),
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "book_id,slug" }
+  );
+  if (error) throw error;
+}
+
+/** Upsert a Future Area's doc into the `future_areas` table. */
+export async function saveArea(
+  sb: SupabaseClient,
+  bookId: string,
+  slug: string,
+  content: unknown,
+  wordCount: number
+): Promise<void> {
+  const area = FUTURE_AREAS.find((a) => a.id === slug);
+  const { error } = await sb.from("future_areas").upsert(
+    {
+      book_id: bookId,
+      slug,
+      group_key: area?.group ?? null,
       content,
       word_count: wordCount,
       updated_at: new Date().toISOString(),
