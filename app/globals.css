@@ -1017,6 +1017,45 @@ body {
   padding: 11px 13px;
   margin: 10px 2px 0;
 }
+.muse-way-card {
+  margin: 10px 2px 0;
+  padding: 14px 15px;
+  background: linear-gradient(180deg, var(--surface-2), var(--surface));
+  border: 1px solid rgba(227, 167, 102, 0.18);
+  border-radius: 13px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.02) inset;
+}
+.muse-way-label {
+  margin: 0 0 8px;
+  font-family: var(--ui);
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted-2);
+}
+.muse-way-question {
+  margin: 0 0 12px;
+  font-family: var(--read);
+  font-style: italic;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--text);
+}
+.muse-way-honest {
+  margin: 0;
+  font-family: var(--read);
+  font-size: 12px;
+  line-height: 1.58;
+  color: var(--muted);
+}
+.muse-way-nudge {
+  margin: 10px 0 0;
+  font-family: var(--read);
+  font-style: italic;
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: var(--muted-2);
+}
 
 .muse-composer {
   flex-shrink: 0;

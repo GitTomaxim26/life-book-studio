@@ -10,6 +10,12 @@ import {
 import type { Book, MuseMode, Theme } from "@/lib/types";
 import { leafInfo } from "@/lib/structure";
 import { useSaveStatus } from "@/components/AuthGate";
+import {
+  SANDBOX_MUSE,
+  sandboxWayOfSeeing,
+  type SandboxWayOfSeeing,
+} from "@/lib/sandbox/sandboxMuse";
+import { DIRECTION_FROM_LABEL } from "@/lib/sandbox/sandboxQuestions";
 
 const BOOK_ID = "__book";
 
@@ -114,6 +120,11 @@ function saveStatusLabel(status: ReturnType<typeof useSaveStatus>): string {
   }
 }
 
+type ConvoTurn = {
+  user: string;
+  muse?: SandboxWayOfSeeing;
+};
+
 export default function MusePanel({
   mode,
   theme,
@@ -136,7 +147,7 @@ export default function MusePanel({
   const [selectedDirection, setSelectedDirection] = useState<
     (typeof LEVEL1)[number] | null
   >(null);
-  const [messages, setMessages] = useState<string[]>([]);
+  const [turns, setTurns] = useState<ConvoTurn[]>([]);
 
   const { chapter, part } = sectionContext(active);
   const words = wordCountForSection(book, active);
@@ -145,8 +156,8 @@ export default function MusePanel({
   const statusSaved = saveStatus === "saved";
 
   const isCompressed =
-    focused || inputValue.trim().length > 0 || messages.length > 0;
-  const isConversation = messages.length > 0;
+    focused || inputValue.trim().length > 0 || turns.length > 0;
+  const isConversation = turns.length > 0;
   const headerSub = isCompressed ? "listening" : "reading beside you";
 
   const handleFocus = () => {
@@ -161,7 +172,7 @@ export default function MusePanel({
 
   const handleBlur = () => {
     setFocused(false);
-    if (!inputRef.current?.value.trim() && messages.length === 0) {
+    if (!inputRef.current?.value.trim() && turns.length === 0) {
       setSelectedDirection(null);
       setInputValue("");
     }
@@ -170,7 +181,11 @@ export default function MusePanel({
   const handleSubmit = () => {
     const text = inputValue.trim();
     if (!text) return;
-    setMessages((prev) => [...prev, text]);
+    const directionKey = selectedDirection
+      ? (DIRECTION_FROM_LABEL[selectedDirection] ?? null)
+      : null;
+    const muse = SANDBOX_MUSE ? sandboxWayOfSeeing(directionKey) : undefined;
+    setTurns((prev) => [...prev, { user: text, muse }]);
     setInputValue("");
     setSelectedDirection(null);
     requestAnimationFrame(() => {
@@ -194,10 +209,10 @@ export default function MusePanel({
   };
 
   useEffect(() => {
-    if (!focused && !inputValue.trim() && messages.length === 0) {
+    if (!focused && !inputValue.trim() && turns.length === 0) {
       scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
     }
-  }, [focused, inputValue, messages.length]);
+  }, [focused, inputValue, turns.length]);
 
   return (
     <div
@@ -354,9 +369,19 @@ export default function MusePanel({
             <span className="muse-convo-mode">· {MODE_LABEL[mode]}</span>
           </div>
 
-          {messages.map((text, i) => (
-            <div key={i} className="muse-user-msg">
-              {text}
+          {turns.map((turn, i) => (
+            <div key={i}>
+              <div className="muse-user-msg">{turn.user}</div>
+              {turn.muse && (
+                <div className="muse-way-card">
+                  <p className="muse-way-label">A way of seeing —</p>
+                  <p className="muse-way-question">{turn.muse.question}</p>
+                  <p className="muse-way-honest">{turn.muse.honestLine}</p>
+                  {turn.muse.nudge && (
+                    <p className="muse-way-nudge">{turn.muse.nudge}</p>
+                  )}
+                </div>
+              )}
             </div>
           ))}
 
@@ -416,7 +441,9 @@ export default function MusePanel({
           </button>
         </form>
         <p className="muse-composer-note">
-          The Muse will answer once intelligence is connected.
+          {SANDBOX_MUSE
+            ? "Temporary sandbox — for rhythm only."
+            : "The Muse will answer once intelligence is connected."}
         </p>
       </footer>
     </div>
