@@ -12,10 +12,16 @@ import { leafInfo } from "@/lib/structure";
 import { useSaveStatus } from "@/components/AuthGate";
 import {
   SANDBOX_MUSE,
-  sandboxWayOfSeeing,
+  SANDBOX_HONEST_LINE,
+  OPEN_MODE_NUDGE,
   type SandboxWayOfSeeing,
 } from "@/lib/sandbox/sandboxMuse";
-import { DIRECTION_FROM_LABEL } from "@/lib/sandbox/sandboxQuestions";
+import {
+  DIRECTION_FROM_LABEL,
+  OPEN_MODE_QUESTIONS,
+  SANDBOX_QUESTIONS,
+  type SandboxDirection,
+} from "@/lib/sandbox/sandboxQuestions";
 
 const BOOK_ID = "__book";
 
@@ -125,6 +131,25 @@ type ConvoTurn = {
   muse?: SandboxWayOfSeeing;
 };
 
+/** Muse question from the direction pool, never identical to what the author submitted. */
+function sandboxMuseForSubmit(
+  directionKey: SandboxDirection | null,
+  userText: string
+): SandboxWayOfSeeing {
+  const pool = directionKey
+    ? SANDBOX_QUESTIONS[directionKey]
+    : OPEN_MODE_QUESTIONS;
+  const candidates = pool.filter((q) => q !== userText);
+  const pickFrom = candidates.length > 0 ? candidates : pool;
+  const question =
+    pickFrom[Math.floor(Math.random() * pickFrom.length)] ?? pickFrom[0];
+  return {
+    question,
+    honestLine: SANDBOX_HONEST_LINE,
+    nudge: directionKey ? undefined : OPEN_MODE_NUDGE,
+  };
+}
+
 export default function MusePanel({
   mode,
   theme,
@@ -184,7 +209,9 @@ export default function MusePanel({
     const directionKey = selectedDirection
       ? (DIRECTION_FROM_LABEL[selectedDirection] ?? null)
       : null;
-    const muse = SANDBOX_MUSE ? sandboxWayOfSeeing(directionKey) : undefined;
+    const muse = SANDBOX_MUSE
+      ? sandboxMuseForSubmit(directionKey, text)
+      : undefined;
     setTurns((prev) => [...prev, { user: text, muse }]);
     setInputValue("");
     setSelectedDirection(null);
@@ -376,10 +403,6 @@ export default function MusePanel({
                 <div className="muse-way-card">
                   <p className="muse-way-label">A way of seeing —</p>
                   <p className="muse-way-question">{turn.muse.question}</p>
-                  <p className="muse-way-honest">{turn.muse.honestLine}</p>
-                  {turn.muse.nudge && (
-                    <p className="muse-way-nudge">{turn.muse.nudge}</p>
-                  )}
                 </div>
               )}
             </div>
@@ -442,7 +465,7 @@ export default function MusePanel({
         </form>
         <p className="muse-composer-note">
           {SANDBOX_MUSE
-            ? "Temporary sandbox — for rhythm only."
+            ? "Temporary sandbox — the Muse isn't reading your book yet."
             : "The Muse will answer once intelligence is connected."}
         </p>
       </footer>
