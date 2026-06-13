@@ -360,10 +360,6 @@ export default function MusePanel({
             </div>
           ))}
 
-          {isConversation && (
-            <p className="muse-disconnected">The Muse is not connected yet.</p>
-          )}
-
           {!isConversation && (
             <>
               <p className="muse-convo-lead">

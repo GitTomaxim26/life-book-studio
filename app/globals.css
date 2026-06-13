@@ -501,6 +501,11 @@ body {
   padding: 20px 18px 16px;
   border-bottom: 1px solid var(--line);
   background: linear-gradient(180deg, rgba(227, 167, 102, 0.05), transparent);
+  transition: padding 0.5s ease, background 0.5s ease;
+}
+.muse-panel--active .muse-head {
+  padding: 11px 16px 10px;
+  background: linear-gradient(180deg, rgba(227, 167, 102, 0.03), transparent);
 }
 .muse-row {
   display: flex;
@@ -512,6 +517,11 @@ body {
   width: 24px;
   height: 24px;
   flex-shrink: 0;
+  transition: width 0.5s ease, height 0.5s ease;
+}
+.muse-panel--active .muse-orb-wrap {
+  width: 17px;
+  height: 17px;
 }
 .muse-orb-core {
   position: absolute;
@@ -533,13 +543,15 @@ body {
   border-radius: 50%;
   background: radial-gradient(circle, rgba(227, 167, 102, 0.35) 0%, transparent 68%);
   animation: muse-halo 5.6s ease-in-out infinite;
+  transition: inset 0.5s ease;
+}
+.muse-panel--active .muse-orb-halo {
+  inset: -5px;
+  background: radial-gradient(circle, rgba(227, 167, 102, 0.5) 0%, transparent 70%);
 }
 .muse-panel--active .muse-orb-core,
 .muse-panel--active .muse-orb-halo {
   animation-duration: 3.6s;
-}
-.muse-panel--active .muse-orb-halo {
-  background: radial-gradient(circle, rgba(227, 167, 102, 0.5) 0%, transparent 70%);
 }
 @keyframes muse-breathe {
   0%,
@@ -577,6 +589,10 @@ body {
   letter-spacing: 0.02em;
   color: var(--text);
   line-height: 1.1;
+  transition: font-size 0.5s ease;
+}
+.muse-panel--active .muse-name {
+  font-size: 15.5px;
 }
 .muse-sub {
   font-family: var(--read);
@@ -584,7 +600,11 @@ body {
   font-size: 13px;
   color: var(--muted);
   margin-top: 3px;
-  transition: opacity 0.5s ease;
+  transition: opacity 0.5s ease, font-size 0.5s ease, margin 0.5s ease;
+}
+.muse-panel--active .muse-sub {
+  font-size: 11.5px;
+  margin-top: 1px;
 }
 .muse-mode-line {
   margin-top: 12px;
@@ -593,11 +613,24 @@ body {
   font-size: 12px;
   color: var(--amber-2);
   opacity: 0.85;
+  max-height: 40px;
+  overflow: hidden;
+  transition: max-height 0.45s ease, opacity 0.4s ease, margin 0.45s ease;
+}
+.muse-panel--active .muse-mode-line {
+  max-height: 20px;
+  margin-top: 5px;
+  font-size: 10.5px;
+  color: var(--muted);
+  opacity: 0.62;
 }
 .muse-mode-line::before {
   content: "— ";
   color: var(--muted-2);
   font-style: normal;
+}
+.muse-panel--active .muse-mode-line::before {
+  content: none;
 }
 .muse-edition {
   background: transparent;
@@ -619,6 +652,12 @@ body {
   padding: 18px 16px 10px;
   scroll-behavior: smooth;
   min-height: 0;
+}
+.muse-panel--active .muse-scroll {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 10px 16px 6px;
 }
 .muse-scroll::-webkit-scrollbar {
   width: 9px;
@@ -818,7 +857,8 @@ body {
   margin-bottom: 0;
 }
 .muse-panel--active .muse-section {
-  margin-bottom: 8px;
+  margin-bottom: 0;
+  flex-shrink: 0;
 }
 .muse-panel--active .muse-card {
   max-height: 0;
@@ -830,11 +870,37 @@ body {
   border-color: transparent;
 }
 .muse-panel--active .muse-mini {
-  max-height: 46px;
-  opacity: 1;
-  padding: 9px 12px;
+  max-height: 24px;
+  opacity: 0.72;
+  padding: 3px 4px 3px 2px;
   transform: none;
-  border-color: var(--line);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  font-size: 11px;
+  color: var(--muted);
+  gap: 5px;
+}
+.muse-panel--active .muse-section:last-of-type .muse-mini {
+  border-bottom: none;
+  margin-bottom: 2px;
+}
+.muse-panel--active .muse-mini b {
+  color: var(--muted);
+  font-weight: 400;
+}
+.muse-panel--active .muse-mini-sub {
+  color: var(--muted-2);
+  font-size: 10.5px;
+}
+.muse-panel--active .muse-mini-dot {
+  width: 3px;
+  height: 3px;
+  opacity: 0.35;
+}
+.muse-panel--active .muse-mini-dot--faint {
+  opacity: 0.25;
 }
 
 .muse-convo-area {
@@ -842,12 +908,21 @@ body {
   opacity: 0;
   overflow: hidden;
   margin-top: 2px;
-  transition: max-height 0.6s ease 0.15s, opacity 0.5s ease 0.25s, margin 0.5s ease;
+  transition: max-height 0.6s ease 0.15s, opacity 0.5s ease 0.25s, margin 0.5s ease,
+    flex 0.5s ease;
 }
 .muse-panel--active .muse-convo-area {
-  max-height: 560px;
+  flex: 1;
+  min-height: 0;
+  max-height: none;
   opacity: 1;
-  margin-top: 12px;
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+.muse-panel--conversation .muse-convo-area {
+  justify-content: flex-end;
 }
 .muse-convo-rule {
   height: 1px;
@@ -884,10 +959,18 @@ body {
   text-transform: uppercase;
   color: var(--muted-2);
 }
+.muse-panel--active:not(.muse-panel--conversation) .muse-convo-lead {
+  margin-top: auto;
+  padding-top: 14px;
+}
 .muse-starters {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  flex-shrink: 0;
+}
+.muse-panel--active:not(.muse-panel--conversation) .muse-starters {
+  padding-bottom: 4px;
 }
 .muse-starter {
   text-align: left;
@@ -933,14 +1016,6 @@ body {
   border-radius: 11px;
   padding: 11px 13px;
   margin: 10px 2px 0;
-}
-.muse-disconnected {
-  font-family: var(--read);
-  font-style: italic;
-  font-size: 13px;
-  color: var(--muted-2);
-  margin: 12px 2px 0;
-  padding: 0 2px;
 }
 
 .muse-composer {
@@ -1013,6 +1088,12 @@ body {
   font-size: 11px;
   color: var(--muted-2);
   font-style: italic;
+  opacity: 0.55;
+  transition: opacity 0.4s ease, color 0.4s ease;
+}
+.muse-panel--active .muse-composer-note {
+  color: var(--muted);
+  opacity: 0.88;
 }
 
 .muse-note {
