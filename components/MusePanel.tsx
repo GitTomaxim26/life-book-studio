@@ -150,6 +150,39 @@ function sandboxMuseForSubmit(
   };
 }
 
+async function resolveMuseQuestion(
+  directionKey: SandboxDirection | null,
+  sectionTitle: string,
+  mode: MuseMode,
+  userText: string
+): Promise<SandboxWayOfSeeing> {
+  try {
+    const res = await fetch("/api/muse", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        direction: directionKey ?? "open",
+        sectionTitle,
+        mode: MODE_LABEL[mode],
+      }),
+    });
+    if (!res.ok) throw new Error("muse route failed");
+
+    const data = (await res.json()) as { question?: string };
+    if (typeof data.question !== "string" || data.question === userText) {
+      return sandboxMuseForSubmit(directionKey, userText);
+    }
+
+    return {
+      question: data.question,
+      honestLine: SANDBOX_HONEST_LINE,
+      nudge: directionKey ? undefined : OPEN_MODE_NUDGE,
+    };
+  } catch {
+    return sandboxMuseForSubmit(directionKey, userText);
+  }
+}
+
 export default function MusePanel({
   mode,
   theme,
@@ -203,18 +236,36 @@ export default function MusePanel({
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const text = inputValue.trim();
     if (!text) return;
     const directionKey = selectedDirection
       ? (DIRECTION_FROM_LABEL[selectedDirection] ?? null)
       : null;
-    const muse = SANDBOX_MUSE
-      ? sandboxMuseForSubmit(directionKey, text)
-      : undefined;
-    setTurns((prev) => [...prev, { user: text, muse }]);
+
     setInputValue("");
     setSelectedDirection(null);
+
+    const turnIndex = turns.length;
+    setTurns((prev) => [...prev, { user: text }]);
+
+    requestAnimationFrame(() => {
+      scrollRef.current?.scrollTo({
+        top: scrollRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    });
+
+    if (!SANDBOX_MUSE) return;
+
+    const muse = await resolveMuseQuestion(directionKey, chapter, mode, text);
+    setTurns((prev) => {
+      if (turnIndex >= prev.length || prev[turnIndex].user !== text) return prev;
+      const next = [...prev];
+      next[turnIndex] = { user: text, muse };
+      return next;
+    });
+
     requestAnimationFrame(() => {
       scrollRef.current?.scrollTo({
         top: scrollRef.current.scrollHeight,
