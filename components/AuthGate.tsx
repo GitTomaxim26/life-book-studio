@@ -20,6 +20,7 @@ import {
   saveThreads,
   saveArea,
   saveTheme,
+  saveCover,
   resetSection,
   discardBook as discardBookInStore,
   type SectionResetResult,
@@ -36,14 +37,17 @@ type SaveFn = (
 type SaveThreadsFn = (threads: ThreadsResult) => void;
 type SaveAreaFn = (slug: string, content: unknown, wordCount: number) => void;
 type SaveThemeFn = (theme: Theme) => void;
+type SaveCoverFn = (cover: Pick<Book["cover"], "title" | "subtitle" | "quote">) => void;
 type ResetSectionFn = (slug: string) => Promise<SectionResetResult>;
 type DiscardBookFn = (bookId: string) => Promise<void>;
 type SaveStatus = "idle" | "saving" | "saved" | "error";
+type Phase = "loading" | "out" | "in" | "load-error";
 
 const SaveContext = createContext<SaveFn>(() => {});
 const SaveThreadsContext = createContext<SaveThreadsFn>(() => {});
 const SaveAreaContext = createContext<SaveAreaFn>(() => {});
 const SaveThemeContext = createContext<SaveThemeFn>(() => {});
+const SaveCoverContext = createContext<SaveCoverFn>(() => {});
 const ResetSectionContext = createContext<ResetSectionFn>(
   async () => {
     throw new Error("Reset not available");
@@ -60,6 +64,8 @@ export const useSaveThreads = () => useContext(SaveThreadsContext);
 export const useSaveArea = () => useContext(SaveAreaContext);
 /** Persist theme (books.theme). Immediate. */
 export const useSaveTheme = () => useContext(SaveThemeContext);
+/** Persist cover fields (books.title/subtitle/quote). Debounced. */
+export const useSaveCover = () => useContext(SaveCoverContext);
 /** Reset the active section to its seed / empty state. Immediate. */
 export const useResetSection = () => useContext(ResetSectionContext);
 /** Permanently discard all book content and reload. Heavily guarded in UI. */
@@ -72,11 +78,12 @@ export default function AuthGate({
 }: {
   render: (book: Book) => ReactNode;
 }) {
-  const [phase, setPhase] = useState<"loading" | "out" | "in">("loading");
+  const [phase, setPhase] = useState<Phase>("loading");
   const [book, setBook] = useState<Book | null>(null);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const timers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
   const savedTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const sessionRef = useRef<Session | null>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => handle(data.session));
@@ -89,17 +96,21 @@ export default function AuthGate({
 
   async function handle(session: Session | null) {
     if (!session) {
+      sessionRef.current = null;
       setBook(null);
       setPhase("out");
       return;
     }
+    sessionRef.current = session;
+    setPhase("loading");
     try {
       const b = await loadOrCreateBook(supabase, session.user.id);
       setBook(b);
       setPhase("in");
     } catch (e) {
       console.error("Failed to load book:", e);
-      setPhase("out");
+      setBook(null);
+      setPhase("load-error");
     }
   }
 
@@ -159,9 +170,28 @@ export default function AuthGate({
 
   const saveThemeFn: SaveThemeFn = (theme) => {
     if (!book) return;
-    void saveTheme(supabase, book.id, theme).catch((e) =>
-      console.error("Theme save failed:", e)
-    );
+    setSaveStatus("saving");
+    void saveTheme(supabase, book.id, theme)
+      .then(() => markSaved())
+      .catch((e) => {
+        console.error("Theme save failed:", e);
+        setSaveStatus("error");
+      });
+  };
+
+  const saveCoverFn: SaveCoverFn = (cover) => {
+    if (!book) return;
+    setSaveStatus("saving");
+    clearTimeout(timers.current["cover"]);
+    timers.current["cover"] = setTimeout(async () => {
+      try {
+        await saveCover(supabase, book.id, cover);
+        markSaved();
+      } catch (e) {
+        console.error("Cover save failed:", e);
+        setSaveStatus("error");
+      }
+    }, 700);
   };
 
   const resetSectionFn: ResetSectionFn = async (slug) => {
@@ -212,20 +242,38 @@ export default function AuthGate({
         <p className="auth-quiet">Opening your book…</p>
       </div>
     );
-  if (phase === "out" || !book) return <Login />;
+  if (phase === "load-error")
+    return (
+      <div className="auth-screen">
+        <div className="auth-card">
+          <p className="auth-quiet">Couldn&apos;t open your book.</p>
+          <button
+            type="button"
+            className="auth-retry"
+            onClick={() => handle(sessionRef.current)}
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  if (phase === "out") return <Login />;
+  if (!book) return null;
 
   return (
     <SaveContext.Provider value={save}>
       <SaveThreadsContext.Provider value={saveThreadsFn}>
         <SaveAreaContext.Provider value={saveAreaFn}>
           <SaveThemeContext.Provider value={saveThemeFn}>
-            <ResetSectionContext.Provider value={resetSectionFn}>
-              <DiscardBookContext.Provider value={discardBookFn}>
-                <SaveStatusContext.Provider value={saveStatus}>
-                  {render(book)}
-                </SaveStatusContext.Provider>
-              </DiscardBookContext.Provider>
-            </ResetSectionContext.Provider>
+            <SaveCoverContext.Provider value={saveCoverFn}>
+              <ResetSectionContext.Provider value={resetSectionFn}>
+                <DiscardBookContext.Provider value={discardBookFn}>
+                  <SaveStatusContext.Provider value={saveStatus}>
+                    {render(book)}
+                  </SaveStatusContext.Provider>
+                </DiscardBookContext.Provider>
+              </ResetSectionContext.Provider>
+            </SaveCoverContext.Provider>
           </SaveThemeContext.Provider>
         </SaveAreaContext.Provider>
       </SaveThreadsContext.Provider>

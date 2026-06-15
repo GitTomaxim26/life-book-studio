@@ -135,6 +135,18 @@ body {
   min-height: 0;
   background: var(--bg);
 }
+.center-view {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+}
+.center-scroll {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
 .center-inner {
   max-width: 660px;
   margin: 0 auto;
@@ -1179,6 +1191,10 @@ body {
   justify-content: center;
   padding: 8vh 0 10vh;
 }
+.center-scroll .cover-stage {
+  flex: none;
+  min-height: 100%;
+}
 .cover-stage::before {
   content: "";
   position: absolute;
@@ -1442,6 +1458,20 @@ body.light .cover-stage::before {
   line-height: 1.7;
   color: var(--muted);
   margin: 0;
+}
+.auth-retry {
+  margin-top: 18px;
+  font-family: var(--ui);
+  font-size: 14px;
+  color: var(--text);
+  background: var(--active-bg);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+.auth-retry:hover {
+  border-color: var(--line-2);
 }
 .auth-form {
   display: flex;

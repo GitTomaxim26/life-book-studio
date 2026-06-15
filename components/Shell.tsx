@@ -91,8 +91,12 @@ export default function Shell({ initialBook }: { initialBook: Book }) {
               seed={chapter.seed?.()}
             />
           ) : (
-            <div className="center-inner">
-              <UnwrittenChapter id={active} />
+            <div className="center-view">
+              <div className="center-scroll">
+                <div className="center-inner">
+                  <UnwrittenChapter id={active} />
+                </div>
+              </div>
             </div>
           )}
         </main>

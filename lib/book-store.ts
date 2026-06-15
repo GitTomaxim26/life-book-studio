@@ -4,7 +4,7 @@
 // `sections.structured`. Future-area docs live in `future_areas`.
 
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Book, Doc, FutureArea, ThreadsResult, Theme } from "@/lib/types";
+import type { Book, Doc, FutureArea, ThreadsResult, Theme, Cover } from "@/lib/types";
 import { FUTURE_AREAS } from "@/lib/structure";
 import {
   identitySeedContent,
@@ -221,6 +221,24 @@ export async function saveTheme(
   const { error } = await sb
     .from("books")
     .update({ theme, updated_at: now() })
+    .eq("id", bookId);
+  if (error) throw error;
+}
+
+/** Persist cover fields on the user's books row. */
+export async function saveCover(
+  sb: SupabaseClient,
+  bookId: string,
+  cover: Pick<Cover, "title" | "subtitle" | "quote">
+): Promise<void> {
+  const { error } = await sb
+    .from("books")
+    .update({
+      title: cover.title,
+      subtitle: cover.subtitle,
+      quote: cover.quote,
+      updated_at: now(),
+    })
     .eq("id", bookId);
   if (error) throw error;
 }

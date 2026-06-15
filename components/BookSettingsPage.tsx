@@ -48,7 +48,9 @@ export default function BookSettingsPage({ book }: { book: Book }) {
   };
 
   return (
-    <div className="book-settings center-inner">
+    <div className="center-view">
+      <div className="center-scroll">
+        <div className="book-settings center-inner">
       <div className="book-settings-inner">
         <h1 className="book-settings-title">Book settings</h1>
         <p className="book-settings-lede">
@@ -134,6 +136,8 @@ export default function BookSettingsPage({ book }: { book: Book }) {
           </div>
         </div>
       )}
+        </div>
+      </div>
     </div>
   );
 }

@@ -17,18 +17,35 @@ export default function ResetChapterButton({
   const resetSection = useResetSection();
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleConfirm = async () => {
     setBusy(true);
+    setError(null);
     try {
       const result = await resetSection(slug);
       onChange(applySectionReset(book, result));
       setOpen(false);
     } catch (e) {
-      console.error("Reset failed:", e);
+      const detail =
+        e instanceof Error
+          ? e.message
+          : typeof e === "object" &&
+              e !== null &&
+              "message" in e
+            ? String((e as { message: unknown }).message)
+            : "Reset failed";
+      console.error("Reset failed:", detail, e);
+      setError(detail || "Reset failed. Please try again.");
     } finally {
       setBusy(false);
     }
+  };
+
+  const closeModal = () => {
+    if (busy) return;
+    setOpen(false);
+    setError(null);
   };
 
   return (
@@ -45,7 +62,7 @@ export default function ResetChapterButton({
         <div
           className="book-modal-backdrop"
           role="presentation"
-          onClick={() => !busy && setOpen(false)}
+          onClick={() => !busy && closeModal()}
         >
           <div
             className="book-modal"
@@ -61,11 +78,12 @@ export default function ResetChapterButton({
               Your writing here will be replaced with the original starting
               prompts. The rest of your book is untouched.
             </p>
+            {error && <p className="book-modal-error">{error}</p>}
             <div className="book-modal-actions">
               <button
                 type="button"
                 className="book-modal-btn book-modal-btn--ghost"
-                onClick={() => setOpen(false)}
+                onClick={closeModal}
                 disabled={busy}
               >
                 Cancel

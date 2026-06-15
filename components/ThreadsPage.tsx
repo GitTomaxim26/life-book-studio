@@ -49,7 +49,9 @@ export default function ThreadsPage({
   const woven = threads.insights.length > 0;
 
   return (
-    <div className="threads-page">
+    <div className="center-view">
+      <div className="center-scroll">
+        <div className="threads-page">
       <div className="doc-head">
         <div className="doc-head-eb">The Turning Point</div>
         <h1 className="doc-head-title">Threads of My Story</h1>
@@ -145,6 +147,8 @@ export default function ThreadsPage({
         Recurring patterns will appear here once the Muse can read across your whole
         book.
       </p>
+        </div>
+      </div>
     </div>
   );
 }
