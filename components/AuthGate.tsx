@@ -23,6 +23,7 @@ import {
   saveCover,
   resetSection,
   discardBook as discardBookInStore,
+  DiscardBookError,
   type SectionResetResult,
 } from "@/lib/book-store";
 import type { Book, ThreadsResult, Theme } from "@/lib/types";
@@ -82,8 +83,26 @@ export default function AuthGate({
   const [book, setBook] = useState<Book | null>(null);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const timers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+  const pendingSaves = useRef<Map<string, () => Promise<void>>>(new Map());
+  const flushPendingSavesRef = useRef<() => void>(() => {});
   const savedTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const sessionRef = useRef<Session | null>(null);
+
+  const scheduleDebouncedSave = (key: string, run: () => Promise<void>) => {
+    pendingSaves.current.set(key, run);
+    clearTimeout(timers.current[key]);
+    timers.current[key] = setTimeout(async () => {
+      pendingSaves.current.delete(key);
+      delete timers.current[key];
+      try {
+        await run();
+        markSaved();
+      } catch (e) {
+        console.error("Save failed:", e);
+        setSaveStatus("error");
+      }
+    }, 700);
+  };
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => handle(data.session));
@@ -120,52 +139,59 @@ export default function AuthGate({
     savedTimer.current = setTimeout(() => setSaveStatus("idle"), 2000);
   };
 
+  flushPendingSavesRef.current = () => {
+    Object.keys(timers.current).forEach((k) => {
+      clearTimeout(timers.current[k]);
+      delete timers.current[k];
+    });
+    const pending = [...pendingSaves.current.values()];
+    pendingSaves.current.clear();
+    for (const run of pending) {
+      void run().catch((e) => console.error("Flush save failed:", e));
+    }
+  };
+
+  useEffect(() => {
+    const flush = () => flushPendingSavesRef.current();
+    const onVisibility = () => {
+      if (document.visibilityState === "hidden") flush();
+    };
+    window.addEventListener("beforeunload", flush);
+    window.addEventListener("pagehide", flush);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      window.removeEventListener("beforeunload", flush);
+      window.removeEventListener("pagehide", flush);
+      document.removeEventListener("visibilitychange", onVisibility);
+      flush();
+    };
+  }, []);
+
   // Debounced per-section save (prose).
   const save: SaveFn = (slug, kind, content, wordCount) => {
     if (!book) return;
     setSaveStatus("saving");
-    clearTimeout(timers.current[slug]);
-    timers.current[slug] = setTimeout(async () => {
-      try {
-        await saveSection(supabase, book.id, slug, kind, content, wordCount);
-        markSaved();
-      } catch (e) {
-        console.error("Save failed:", e);
-        setSaveStatus("error");
-      }
-    }, 700);
+    scheduleDebouncedSave(`section:${slug}`, () =>
+      saveSection(supabase, book.id, slug, kind, content, wordCount)
+    );
   };
 
   // Debounced Threads save (structured).
   const saveThreadsFn: SaveThreadsFn = (threads) => {
     if (!book) return;
     setSaveStatus("saving");
-    clearTimeout(timers.current["threads"]);
-    timers.current["threads"] = setTimeout(async () => {
-      try {
-        await saveThreads(supabase, book.id, threads);
-        markSaved();
-      } catch (e) {
-        console.error("Save failed:", e);
-        setSaveStatus("error");
-      }
-    }, 700);
+    scheduleDebouncedSave("threads", () =>
+      saveThreads(supabase, book.id, threads)
+    );
   };
 
   // Debounced Future Area save (future_areas table).
   const saveAreaFn: SaveAreaFn = (slug, content, wordCount) => {
     if (!book) return;
     setSaveStatus("saving");
-    clearTimeout(timers.current[slug]);
-    timers.current[slug] = setTimeout(async () => {
-      try {
-        await saveArea(supabase, book.id, slug, content, wordCount);
-        markSaved();
-      } catch (e) {
-        console.error("Save failed:", e);
-        setSaveStatus("error");
-      }
-    }, 700);
+    scheduleDebouncedSave(`area:${slug}`, () =>
+      saveArea(supabase, book.id, slug, content, wordCount)
+    );
   };
 
   const saveThemeFn: SaveThemeFn = (theme) => {
@@ -182,16 +208,9 @@ export default function AuthGate({
   const saveCoverFn: SaveCoverFn = (cover) => {
     if (!book) return;
     setSaveStatus("saving");
-    clearTimeout(timers.current["cover"]);
-    timers.current["cover"] = setTimeout(async () => {
-      try {
-        await saveCover(supabase, book.id, cover);
-        markSaved();
-      } catch (e) {
-        console.error("Cover save failed:", e);
-        setSaveStatus("error");
-      }
-    }, 700);
+    scheduleDebouncedSave("cover", () =>
+      saveCover(supabase, book.id, cover)
+    );
   };
 
   const resetSectionFn: ResetSectionFn = async (slug) => {
@@ -218,11 +237,16 @@ export default function AuthGate({
     if (!session) throw new Error("Not signed in");
 
     Object.keys(timers.current).forEach((k) => clearTimeout(timers.current[k]));
+    pendingSaves.current.clear();
     setSaveStatus("saving");
     try {
       await discardBookInStore(supabase, session.user.id, bookId);
       window.location.reload();
     } catch (e) {
+      if (e instanceof DiscardBookError && e.recovered) {
+        window.location.reload();
+        return;
+      }
       const message =
         e instanceof Error
           ? e.message

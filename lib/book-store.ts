@@ -323,9 +323,67 @@ export async function resetSection(
   throw new Error(`Cannot reset unknown section: ${slug}`);
 }
 
+/** Thrown when discard fails; distinguishes untouched vs partial vs repaired. */
+export class DiscardBookError extends Error {
+  readonly contentErased: boolean;
+  readonly recovered: boolean;
+
+  constructor(
+    message: string,
+    opts: { contentErased: boolean; recovered: boolean; cause?: unknown }
+  ) {
+    super(message, { cause: opts.cause });
+    this.name = "DiscardBookError";
+    this.contentErased = opts.contentErased;
+    this.recovered = opts.recovered;
+  }
+}
+
+const FRESH_BOOK_ROW = {
+  title: "",
+  subtitle: "",
+  quote: "",
+  theme: "night" as const,
+  focus_cycle: 1,
+  begun_at: now(),
+  updated_at: now(),
+};
+
+/** Idempotent repair: wipe child rows, reset books row, seed Identity. */
+async function ensureFreshBookState(
+  sb: SupabaseClient,
+  userId: string,
+  bookId: string
+): Promise<void> {
+  for (const table of ["sections", "future_areas", "cycles"] as const) {
+    const { error } = await sb.from(table).delete().eq("book_id", bookId);
+    if (error) throw error;
+  }
+
+  const { error: bookErr } = await sb
+    .from("books")
+    .update(FRESH_BOOK_ROW)
+    .eq("id", bookId)
+    .eq("user_id", userId);
+  if (bookErr) throw bookErr;
+
+  const { error: seedErr } = await sb.from("sections").upsert(
+    {
+      book_id: bookId,
+      slug: "identity_now",
+      kind: "doc",
+      content: identitySeed,
+      word_count: 0,
+    },
+    { onConflict: "book_id,slug" }
+  );
+  if (seedErr) throw seedErr;
+}
+
 /**
  * Permanently erase all book content for the signed-in user's book and re-seed
  * Identity. Scoped to bookId + userId; uses authenticated client only (RLS).
+ * On failure after deletes begin, attempts repair so the book is usable again.
  */
 export async function discardBook(
   sb: SupabaseClient,
@@ -341,45 +399,57 @@ export async function discardBook(
   if (ownErr) throw ownErr;
   if (!owned) throw new Error("Book not found");
 
-  const { error: secErr } = await sb
-    .from("sections")
-    .delete()
-    .eq("book_id", bookId);
-  if (secErr) throw secErr;
+  let contentErased = false;
+  try {
+    const { error: secErr } = await sb
+      .from("sections")
+      .delete()
+      .eq("book_id", bookId);
+    if (secErr) throw secErr;
+    contentErased = true;
 
-  const { error: areaErr } = await sb
-    .from("future_areas")
-    .delete()
-    .eq("book_id", bookId);
-  if (areaErr) throw areaErr;
+    const { error: areaErr } = await sb
+      .from("future_areas")
+      .delete()
+      .eq("book_id", bookId);
+    if (areaErr) throw areaErr;
 
-  const { error: cycleErr } = await sb
-    .from("cycles")
-    .delete()
-    .eq("book_id", bookId);
-  if (cycleErr) throw cycleErr;
+    const { error: cycleErr } = await sb
+      .from("cycles")
+      .delete()
+      .eq("book_id", bookId);
+    if (cycleErr) throw cycleErr;
 
-  const { error: bookErr } = await sb
-    .from("books")
-    .update({
-      title: "",
-      subtitle: "",
-      quote: "",
-      theme: "night",
-      focus_cycle: 1,
-      begun_at: now(),
-      updated_at: now(),
-    })
-    .eq("id", bookId)
-    .eq("user_id", userId);
-  if (bookErr) throw bookErr;
+    const { error: bookErr } = await sb
+      .from("books")
+      .update(FRESH_BOOK_ROW)
+      .eq("id", bookId)
+      .eq("user_id", userId);
+    if (bookErr) throw bookErr;
 
-  const { error: seedErr } = await sb.from("sections").insert({
-    book_id: bookId,
-    slug: "identity_now",
-    kind: "doc",
-    content: identitySeed,
-    word_count: 0,
-  });
-  if (seedErr) throw seedErr;
+    const { error: seedErr } = await sb.from("sections").insert({
+      book_id: bookId,
+      slug: "identity_now",
+      kind: "doc",
+      content: identitySeed,
+      word_count: 0,
+    });
+    if (seedErr) throw seedErr;
+  } catch (primaryErr) {
+    if (!contentErased) throw primaryErr;
+
+    try {
+      await ensureFreshBookState(sb, userId, bookId);
+      throw new DiscardBookError(
+        "The reset did not finish cleanly, but your book was repaired to a fresh start. Reload the page to continue.",
+        { contentErased: true, recovered: true, cause: primaryErr }
+      );
+    } catch (recoveryErr) {
+      if (recoveryErr instanceof DiscardBookError) throw recoveryErr;
+      throw new DiscardBookError(
+        "Some of your book was erased before the reset could finish, and automatic repair failed. Reload and try discard again — if the book still looks broken, contact support.",
+        { contentErased: true, recovered: false, cause: primaryErr }
+      );
+    }
+  }
 }

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Book } from "@/lib/types";
 import { useDiscardBook } from "@/components/AuthGate";
+import { DiscardBookError } from "@/lib/book-store";
 
 const CONFIRM_WORD = "DISCARD";
 
@@ -22,6 +23,12 @@ export default function BookSettingsPage({ book }: { book: Book }) {
     try {
       await runDiscardBook(book.id);
     } catch (e) {
+      console.error("Discard failed:", e);
+      if (e instanceof DiscardBookError) {
+        setError(e.message);
+        setBusy(false);
+        return;
+      }
       const detail =
         e instanceof Error
           ? e.message
@@ -30,11 +37,10 @@ export default function BookSettingsPage({ book }: { book: Book }) {
               "message" in e
             ? String((e as { message: unknown }).message)
             : String(e);
-      console.error("Discard failed:", detail, e);
       setError(
         detail
-          ? `Something went wrong: ${detail}`
-          : "Something went wrong. Your book was not changed."
+          ? `Something went wrong before your book was changed: ${detail}`
+          : "Something went wrong before your book was changed."
       );
       setBusy(false);
     }
