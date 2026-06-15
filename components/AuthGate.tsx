@@ -19,11 +19,12 @@ import {
   saveSection,
   saveThreads,
   saveArea,
+  saveTheme,
   resetSection,
   discardBook as discardBookInStore,
   type SectionResetResult,
 } from "@/lib/book-store";
-import type { Book, ThreadsResult } from "@/lib/types";
+import type { Book, ThreadsResult, Theme } from "@/lib/types";
 import Login from "./Login";
 
 type SaveFn = (
@@ -34,6 +35,7 @@ type SaveFn = (
 ) => void;
 type SaveThreadsFn = (threads: ThreadsResult) => void;
 type SaveAreaFn = (slug: string, content: unknown, wordCount: number) => void;
+type SaveThemeFn = (theme: Theme) => void;
 type ResetSectionFn = (slug: string) => Promise<SectionResetResult>;
 type DiscardBookFn = (bookId: string) => Promise<void>;
 type SaveStatus = "idle" | "saving" | "saved" | "error";
@@ -41,6 +43,7 @@ type SaveStatus = "idle" | "saving" | "saved" | "error";
 const SaveContext = createContext<SaveFn>(() => {});
 const SaveThreadsContext = createContext<SaveThreadsFn>(() => {});
 const SaveAreaContext = createContext<SaveAreaFn>(() => {});
+const SaveThemeContext = createContext<SaveThemeFn>(() => {});
 const ResetSectionContext = createContext<ResetSectionFn>(
   async () => {
     throw new Error("Reset not available");
@@ -55,6 +58,8 @@ export const useSaveSection = () => useContext(SaveContext);
 export const useSaveThreads = () => useContext(SaveThreadsContext);
 /** Persist a Future Area doc (future_areas table). Debounced. */
 export const useSaveArea = () => useContext(SaveAreaContext);
+/** Persist theme (books.theme). Immediate. */
+export const useSaveTheme = () => useContext(SaveThemeContext);
 /** Reset the active section to its seed / empty state. Immediate. */
 export const useResetSection = () => useContext(ResetSectionContext);
 /** Permanently discard all book content and reload. Heavily guarded in UI. */
@@ -152,6 +157,13 @@ export default function AuthGate({
     }, 700);
   };
 
+  const saveThemeFn: SaveThemeFn = (theme) => {
+    if (!book) return;
+    void saveTheme(supabase, book.id, theme).catch((e) =>
+      console.error("Theme save failed:", e)
+    );
+  };
+
   const resetSectionFn: ResetSectionFn = async (slug) => {
     if (!book) throw new Error("No book loaded");
     clearTimeout(timers.current[slug]);
@@ -206,13 +218,15 @@ export default function AuthGate({
     <SaveContext.Provider value={save}>
       <SaveThreadsContext.Provider value={saveThreadsFn}>
         <SaveAreaContext.Provider value={saveAreaFn}>
-          <ResetSectionContext.Provider value={resetSectionFn}>
-            <DiscardBookContext.Provider value={discardBookFn}>
-              <SaveStatusContext.Provider value={saveStatus}>
-                {render(book)}
-              </SaveStatusContext.Provider>
-            </DiscardBookContext.Provider>
-          </ResetSectionContext.Provider>
+          <SaveThemeContext.Provider value={saveThemeFn}>
+            <ResetSectionContext.Provider value={resetSectionFn}>
+              <DiscardBookContext.Provider value={discardBookFn}>
+                <SaveStatusContext.Provider value={saveStatus}>
+                  {render(book)}
+                </SaveStatusContext.Provider>
+              </DiscardBookContext.Provider>
+            </ResetSectionContext.Provider>
+          </SaveThemeContext.Provider>
         </SaveAreaContext.Provider>
       </SaveThreadsContext.Provider>
     </SaveContext.Provider>

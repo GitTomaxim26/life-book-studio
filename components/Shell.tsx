@@ -1,8 +1,9 @@
 // components/Shell.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import type { Book } from "@/lib/types";
+import { useSaveTheme } from "@/components/AuthGate";
 import Sidebar from "./Sidebar";
 import Cover from "./Cover";
 import IdentityPage from "./IdentityPage";
@@ -37,13 +38,17 @@ function UnwrittenChapter({ id }: { id: string }) {
 export default function Shell({ initialBook }: { initialBook: Book }) {
   const [book, setBook] = useState<Book>(initialBook);
   const [active, setActive] = useState<string>(BOOK_ID);
+  const saveTheme = useSaveTheme();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     document.body.classList.toggle("light", book.theme === "paper");
   }, [book.theme]);
 
-  const toggleTheme = () =>
-    setBook((b) => ({ ...b, theme: b.theme === "night" ? "paper" : "night" }));
+  const toggleTheme = () => {
+    const next = book.theme === "night" ? "paper" : "night";
+    setBook((b) => ({ ...b, theme: next }));
+    saveTheme(next);
+  };
 
   const chapter = active === BOOK_ID ? null : CHAPTERS[active];
   const isArea =
