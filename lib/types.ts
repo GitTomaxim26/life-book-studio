@@ -124,6 +124,6 @@ export interface MuseMessage {
 // ---- Gate helpers (the core thesis, enforced in one place) ----
 export const threadsWoven = (b: Book): boolean => b.threads.insights.length > 0;
 export const newIdentityWritten = (b: Book): boolean =>
-  (b.docs["new_identity"]?.wordCount ?? 0) > 0;
+  (b.docs["new_identity"]?.wordCount ?? 0) >= 100;
 /** Future areas + Future To Avoid unlock only after New Identity is written. */
 export const futureUnlocked = (b: Book): boolean => newIdentityWritten(b);
