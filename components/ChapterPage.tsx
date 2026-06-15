@@ -9,6 +9,7 @@ import type { Book, DocJSON } from "@/lib/types";
 import { useSaveSection } from "@/components/AuthGate";
 import { leafInfo } from "@/lib/structure";
 import Editor from "./Editor";
+import ResetChapterButton from "./ResetChapterButton";
 
 export default function ChapterPage({
   book,
@@ -41,6 +42,7 @@ export default function ChapterPage({
 
   return (
     <Editor
+      key={doc?.updatedAt ?? slug}
       showToolbar
       value={doc?.content}
       seed={seed}
@@ -50,6 +52,7 @@ export default function ChapterPage({
           <div className="doc-head-eb">{info?.partLabel ?? "Your book"}</div>
           <h1 className="doc-head-title">{info?.title ?? "Chapter"}</h1>
           <p className="doc-head-lede">{lede}</p>
+          <ResetChapterButton slug={slug} book={book} onChange={onChange} />
         </div>
       }
     />

@@ -8,6 +8,7 @@
 import { useState } from "react";
 import type { Book, ThreadsResult } from "@/lib/types";
 import { useSaveThreads } from "@/components/AuthGate";
+import ResetChapterButton from "./ResetChapterButton";
 
 export default function ThreadsPage({
   book,
@@ -56,6 +57,14 @@ export default function ThreadsPage({
           The threads you’ve come to see running through your story — named in your
           own words.
         </p>
+        <ResetChapterButton
+          slug="threads"
+          book={book}
+          onChange={(b) => {
+            onChange(b);
+            setDraft("");
+          }}
+        />
       </div>
 
       <section className="threads-section">

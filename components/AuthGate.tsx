@@ -14,7 +14,15 @@ import {
 } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase/client";
-import { loadOrCreateBook, saveSection, saveThreads, saveArea } from "@/lib/book-store";
+import {
+  loadOrCreateBook,
+  saveSection,
+  saveThreads,
+  saveArea,
+  resetSection,
+  discardBook as discardBookInStore,
+  type SectionResetResult,
+} from "@/lib/book-store";
 import type { Book, ThreadsResult } from "@/lib/types";
 import Login from "./Login";
 
@@ -26,11 +34,19 @@ type SaveFn = (
 ) => void;
 type SaveThreadsFn = (threads: ThreadsResult) => void;
 type SaveAreaFn = (slug: string, content: unknown, wordCount: number) => void;
+type ResetSectionFn = (slug: string) => Promise<SectionResetResult>;
+type DiscardBookFn = (bookId: string) => Promise<void>;
 type SaveStatus = "idle" | "saving" | "saved" | "error";
 
 const SaveContext = createContext<SaveFn>(() => {});
 const SaveThreadsContext = createContext<SaveThreadsFn>(() => {});
 const SaveAreaContext = createContext<SaveAreaFn>(() => {});
+const ResetSectionContext = createContext<ResetSectionFn>(
+  async () => {
+    throw new Error("Reset not available");
+  }
+);
+const DiscardBookContext = createContext<DiscardBookFn>(async () => {});
 const SaveStatusContext = createContext<SaveStatus>("idle");
 
 /** Persist a prose section. Debounced + safe to call on every keystroke. */
@@ -39,6 +55,10 @@ export const useSaveSection = () => useContext(SaveContext);
 export const useSaveThreads = () => useContext(SaveThreadsContext);
 /** Persist a Future Area doc (future_areas table). Debounced. */
 export const useSaveArea = () => useContext(SaveAreaContext);
+/** Reset the active section to its seed / empty state. Immediate. */
+export const useResetSection = () => useContext(ResetSectionContext);
+/** Permanently discard all book content and reload. Heavily guarded in UI. */
+export const useDiscardBook = () => useContext(DiscardBookContext);
 /** Live save state for a status indicator. */
 export const useSaveStatus = () => useContext(SaveStatusContext);
 
@@ -132,6 +152,48 @@ export default function AuthGate({
     }, 700);
   };
 
+  const resetSectionFn: ResetSectionFn = async (slug) => {
+    if (!book) throw new Error("No book loaded");
+    clearTimeout(timers.current[slug]);
+    if (slug === "threads") clearTimeout(timers.current["threads"]);
+    setSaveStatus("saving");
+    try {
+      const result = await resetSection(supabase, book.id, slug);
+      markSaved();
+      return result;
+    } catch (e) {
+      console.error("Reset failed:", e);
+      setSaveStatus("error");
+      throw e;
+    }
+  };
+
+  const discardBookFn: DiscardBookFn = async (bookId) => {
+    if (!book || book.id !== bookId) throw new Error("Book mismatch");
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session) throw new Error("Not signed in");
+
+    Object.keys(timers.current).forEach((k) => clearTimeout(timers.current[k]));
+    setSaveStatus("saving");
+    try {
+      await discardBookInStore(supabase, session.user.id, bookId);
+      window.location.reload();
+    } catch (e) {
+      const message =
+        e instanceof Error
+          ? e.message
+          : typeof e === "object" &&
+              e !== null &&
+              "message" in e &&
+              typeof (e as { message: unknown }).message === "string"
+            ? (e as { message: string }).message
+            : "Discard failed";
+      throw new Error(message, { cause: e });
+    }
+  };
+
   if (phase === "loading")
     return (
       <div className="auth-screen">
@@ -144,9 +206,13 @@ export default function AuthGate({
     <SaveContext.Provider value={save}>
       <SaveThreadsContext.Provider value={saveThreadsFn}>
         <SaveAreaContext.Provider value={saveAreaFn}>
-          <SaveStatusContext.Provider value={saveStatus}>
-            {render(book)}
-          </SaveStatusContext.Provider>
+          <ResetSectionContext.Provider value={resetSectionFn}>
+            <DiscardBookContext.Provider value={discardBookFn}>
+              <SaveStatusContext.Provider value={saveStatus}>
+                {render(book)}
+              </SaveStatusContext.Provider>
+            </DiscardBookContext.Provider>
+          </ResetSectionContext.Provider>
         </SaveAreaContext.Provider>
       </SaveThreadsContext.Provider>
     </SaveContext.Provider>

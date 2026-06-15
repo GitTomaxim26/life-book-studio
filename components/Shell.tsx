@@ -10,11 +10,13 @@ import ChapterPage from "./ChapterPage";
 import ThreadsPage from "./ThreadsPage";
 import FutureAreaPage from "./FutureAreaPage";
 import MusePanel from "./MusePanel";
+import BookSettingsPage from "./BookSettingsPage";
 import TopBar from "./TopBar";
 import { museModeFor, leafInfo, FUTURE_AREAS } from "@/lib/structure";
 import { CHAPTERS } from "@/lib/chapters";
 
 const BOOK_ID = "__book";
+const SETTINGS_ID = "__settings";
 
 /** A chapter that exists in the book but hasn't been written into yet.
  *  Speaks in the language of the book — never of the build. */
@@ -49,7 +51,7 @@ export default function Shell({ initialBook }: { initialBook: Book }) {
 
   return (
     <div className="app-frame">
-      <TopBar active={active} />
+      <TopBar active={active} onOpenSettings={() => setActive(SETTINGS_ID)} />
       <div className="studio">
         <aside className="rail">
           <Sidebar
@@ -67,6 +69,8 @@ export default function Shell({ initialBook }: { initialBook: Book }) {
               onChange={setBook}
               onOpen={() => setActive("identity_now")}
             />
+          ) : active === SETTINGS_ID ? (
+            <BookSettingsPage book={book} />
           ) : active === "identity_now" ? (
             <IdentityPage book={book} onChange={setBook} />
           ) : active === "threads" ? (

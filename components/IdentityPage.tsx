@@ -4,6 +4,7 @@ import type { Book, DocJSON } from "@/lib/types";
 import { identitySeedContent } from "@/lib/seeds";
 import { useSaveSection } from "@/components/AuthGate";
 import Editor from "./Editor";
+import ResetChapterButton from "./ResetChapterButton";
 
 export default function IdentityPage({
   book,
@@ -29,6 +30,7 @@ export default function IdentityPage({
 
   return (
     <Editor
+      key={doc.updatedAt}
       showToolbar
       value={doc.content}
       seed={identitySeedContent()}
@@ -38,6 +40,11 @@ export default function IdentityPage({
           <div className="doc-head-eb">Part I · Identity</div>
           <h1 className="doc-head-title">Identity (Now)</h1>
           <p className="doc-head-lede">Who is holding the pen?</p>
+          <ResetChapterButton
+            slug="identity_now"
+            book={book}
+            onChange={onChange}
+          />
         </div>
       }
     />

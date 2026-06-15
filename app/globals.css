@@ -1678,3 +1678,192 @@ body.light .cover-stage::before {
   opacity: 0.85;
   margin: 12px 0 0;
 }
+
+/* ===== Reset chapter + book settings ===== */
+.reset-chapter-btn {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 0;
+  font-family: var(--ui);
+  font-size: 11px;
+  color: var(--muted-2);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.14s ease;
+}
+.reset-chapter-btn:hover {
+  color: var(--muted);
+}
+
+.topbar-settings-link {
+  font-family: var(--ui);
+  font-size: 11.5px;
+  color: var(--muted-2);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.14s ease;
+}
+.topbar-settings-link:hover {
+  color: var(--muted);
+}
+
+.book-settings {
+  padding: 32px 24px 48px;
+}
+.book-settings-inner {
+  max-width: 36rem;
+}
+.book-settings-title {
+  font-family: var(--serif);
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: var(--text);
+  margin: 0 0 8px;
+}
+.book-settings-lede {
+  font-family: var(--read);
+  font-size: 14px;
+  color: var(--muted);
+  margin: 0 0 32px;
+  line-height: 1.6;
+}
+.book-settings-section {
+  margin-bottom: 28px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--line);
+}
+.book-settings-section:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+.book-settings-h {
+  font-family: var(--serif);
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-2);
+  margin: 0 0 8px;
+}
+.book-settings-note {
+  font-family: var(--read);
+  font-size: 13.5px;
+  line-height: 1.62;
+  color: var(--muted);
+  margin: 0 0 14px;
+}
+.book-settings-danger {
+  margin-top: 40px;
+  padding-top: 28px;
+  border-top: 1px solid var(--line);
+  border-bottom: none;
+}
+.book-settings-discard-btn {
+  font-family: var(--ui);
+  font-size: 12.5px;
+  color: var(--muted-2);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 9px 14px;
+  cursor: pointer;
+  transition: color 0.14s ease, border-color 0.14s ease;
+}
+.book-settings-discard-btn:hover {
+  color: #c47070;
+  border-color: rgba(192, 112, 112, 0.35);
+}
+
+.book-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.52);
+}
+.book-modal {
+  width: min(100%, 22rem);
+  padding: 22px 22px 18px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.28);
+}
+.book-modal--danger {
+  width: min(100%, 26rem);
+}
+.book-modal-title {
+  font-family: var(--serif);
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: var(--text);
+  margin: 0 0 10px;
+}
+.book-modal-body {
+  font-family: var(--read);
+  font-size: 13.5px;
+  line-height: 1.62;
+  color: var(--text-2);
+  margin: 0 0 18px;
+}
+.book-modal-label {
+  display: block;
+  font-family: var(--ui);
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.book-modal-input {
+  width: 100%;
+  font-family: var(--ui);
+  font-size: 13px;
+  color: var(--text);
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 14px;
+}
+.book-modal-error {
+  font-family: var(--ui);
+  font-size: 12px;
+  color: #c47070;
+  margin: 0 0 12px;
+}
+.book-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.book-modal-btn {
+  font-family: var(--ui);
+  font-size: 13px;
+  border-radius: 8px;
+  padding: 8px 14px;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+.book-modal-btn--ghost {
+  color: var(--muted);
+  background: transparent;
+  border-color: var(--line);
+}
+.book-modal-btn--confirm {
+  color: var(--text);
+  background: var(--active-bg);
+  border-color: var(--line);
+}
+.book-modal-btn--danger {
+  color: #1a1320;
+  background: linear-gradient(135deg, #c47070, #a85555);
+  border-color: transparent;
+}
+.book-modal-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}

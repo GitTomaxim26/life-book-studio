@@ -6,20 +6,15 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Book, Doc, FutureArea, ThreadsResult } from "@/lib/types";
 import { FUTURE_AREAS } from "@/lib/structure";
-import * as seeds from "@/lib/seeds";
+import {
+  identitySeedContent,
+  keyExperiencesSeedContent,
+  newIdentitySeedContent,
+  futureToAvoidSeedContent,
+  visionSeedContent,
+} from "@/lib/seeds";
 
-// Find the Identity seed regardless of how lib/seeds.ts exports it.
-const identitySeed: unknown = (() => {
-  const s: any = seeds;
-  if (typeof s.identitySeedContent === "function") return s.identitySeedContent();
-  return (
-    s.identitySeed ??
-    s.IDENTITY_SEED ??
-    s.identityScaffold ??
-    s.default ??
-    null
-  );
-})();
+const identitySeed = identitySeedContent();
 
 const now = () => new Date().toISOString();
 const emptyDoc = (): Doc => ({
@@ -215,4 +210,145 @@ export async function saveArea(
     { onConflict: "book_id,slug" }
   );
   if (error) throw error;
+}
+
+/** Initial doc content for a prose section slug (seed scaffold or empty). */
+function docSeedForSlug(slug: string): unknown {
+  switch (slug) {
+    case "identity_now":
+      return identitySeedContent();
+    case "key_exp":
+      return keyExperiencesSeedContent();
+    case "new_identity":
+      return newIdentitySeedContent();
+    case "future_to_avoid":
+      return futureToAvoidSeedContent();
+    case "vision":
+      return visionSeedContent();
+    default:
+      return emptyDoc().content;
+  }
+}
+
+export type SectionResetResult =
+  | { kind: "doc"; slug: string; doc: Doc }
+  | { kind: "threads"; threads: ThreadsResult }
+  | { kind: "area"; slug: string; doc: Doc };
+
+/** Apply a section reset result to in-memory Book state. */
+export function applySectionReset(book: Book, result: SectionResetResult): Book {
+  switch (result.kind) {
+    case "doc":
+      return {
+        ...book,
+        docs: { ...book.docs, [result.slug]: result.doc },
+      };
+    case "threads":
+      return { ...book, threads: result.threads };
+    case "area":
+      return {
+        ...book,
+        futureAreas: book.futureAreas.map((a) =>
+          a.id === result.slug ? { ...a, doc: result.doc } : a
+        ),
+      };
+  }
+}
+
+/** Reset one section to its original seed / empty state. Scoped to bookId only. */
+export async function resetSection(
+  sb: SupabaseClient,
+  bookId: string,
+  slug: string
+): Promise<SectionResetResult> {
+  const ts = now();
+
+  if (slug === "threads") {
+    const threads = emptyThreads();
+    await saveThreads(sb, bookId, threads);
+    return { kind: "threads", threads };
+  }
+
+  if (FUTURE_AREAS.some((a) => a.id === slug)) {
+    const content = emptyDoc().content;
+    await saveArea(sb, bookId, slug, content, 0);
+    return {
+      kind: "area",
+      slug,
+      doc: { content, wordCount: 0, updatedAt: ts },
+    };
+  }
+
+  if (DOC_SLUGS.includes(slug)) {
+    const content = docSeedForSlug(slug);
+    await saveSection(sb, bookId, slug, "doc", content, 0);
+    return {
+      kind: "doc",
+      slug,
+      doc: { content, wordCount: 0, updatedAt: ts },
+    };
+  }
+
+  throw new Error(`Cannot reset unknown section: ${slug}`);
+}
+
+/**
+ * Permanently erase all book content for the signed-in user's book and re-seed
+ * Identity. Scoped to bookId + userId; uses authenticated client only (RLS).
+ */
+export async function discardBook(
+  sb: SupabaseClient,
+  userId: string,
+  bookId: string
+): Promise<void> {
+  const { data: owned, error: ownErr } = await sb
+    .from("books")
+    .select("id")
+    .eq("id", bookId)
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (ownErr) throw ownErr;
+  if (!owned) throw new Error("Book not found");
+
+  const { error: secErr } = await sb
+    .from("sections")
+    .delete()
+    .eq("book_id", bookId);
+  if (secErr) throw secErr;
+
+  const { error: areaErr } = await sb
+    .from("future_areas")
+    .delete()
+    .eq("book_id", bookId);
+  if (areaErr) throw areaErr;
+
+  const { error: cycleErr } = await sb
+    .from("cycles")
+    .delete()
+    .eq("book_id", bookId);
+  if (cycleErr) throw cycleErr;
+
+  const { error: bookErr } = await sb
+    .from("books")
+    .update({
+      title: "",
+      subtitle: "",
+      quote: "",
+      theme: "night",
+      focus_cycle: 1,
+      begun_at: now(),
+      updated_at: now(),
+    })
+    .eq("id", bookId)
+    .eq("user_id", userId);
+  if (bookErr) throw bookErr;
+
+  const { error: seedErr } = await sb.from("sections").insert({
+    book_id: bookId,
+    slug: "identity_now",
+    kind: "doc",
+    content: identitySeed,
+    word_count: 0,
+  });
+  if (seedErr) throw seedErr;
 }

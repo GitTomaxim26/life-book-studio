@@ -6,10 +6,21 @@ import SaveIndicator from "./SaveIndicator";
 import SignOutButton from "./SignOutButton";
 
 const BOOK_ID = "__book";
+const SETTINGS_ID = "__settings";
 
-export default function TopBar({ active }: { active: string }) {
+export default function TopBar({
+  active,
+  onOpenSettings,
+}: {
+  active: string;
+  onOpenSettings: () => void;
+}) {
   const section =
-    active === BOOK_ID ? null : leafInfo(active)?.title ?? null;
+    active === BOOK_ID
+      ? null
+      : active === SETTINGS_ID
+        ? "Book settings"
+        : (leafInfo(active)?.title ?? null);
 
   return (
     <header className="topbar">
@@ -24,6 +35,13 @@ export default function TopBar({ active }: { active: string }) {
       </nav>
       <div className="topbar-right">
         <SaveIndicator />
+        <button
+          type="button"
+          className="topbar-settings-link"
+          onClick={onOpenSettings}
+        >
+          Book settings
+        </button>
         <SignOutButton />
       </div>
     </header>

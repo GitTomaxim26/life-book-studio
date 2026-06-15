@@ -10,6 +10,7 @@ import type { Book, DocJSON } from "@/lib/types";
 import { GROUPS, FUTURE_AREAS } from "@/lib/structure";
 import { useSaveArea } from "@/components/AuthGate";
 import Editor from "./Editor";
+import ResetChapterButton from "./ResetChapterButton";
 
 export default function FutureAreaPage({
   book,
@@ -50,6 +51,7 @@ export default function FutureAreaPage({
 
   return (
     <Editor
+      key={area.doc.updatedAt}
       showToolbar
       value={area.doc.content}
       onChange={update}
@@ -60,6 +62,7 @@ export default function FutureAreaPage({
           <h1 className="doc-head-title">{area.title}</h1>
           {def?.frame && <p className="area-frame">{def.frame}</p>}
           {area.hint && <p className="doc-head-hint">{area.hint}</p>}
+          <ResetChapterButton slug={slug} book={book} onChange={onChange} />
         </div>
       }
     />
