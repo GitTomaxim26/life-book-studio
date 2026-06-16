@@ -12,6 +12,7 @@ import {
   newIdentitySeedContent,
   futureToAvoidSeedContent,
   visionSeedContent,
+  wordCountFromDoc,
 } from "@/lib/seeds";
 
 const identitySeed = identitySeedContent();
@@ -94,7 +95,7 @@ export async function loadOrCreateBook(
     if (!DOC_SLUGS.includes(r.slug)) continue; // skip threads + any structured section
     docs[r.slug] = {
       content: r.content,
-      wordCount: r.word_count ?? 0,
+      wordCount: wordCountFromDoc(r.content),
       updatedAt: r.updated_at ?? now(),
     };
   }

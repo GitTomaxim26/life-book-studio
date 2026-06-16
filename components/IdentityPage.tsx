@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { Book, DocJSON } from "@/lib/types";
 import { identitySeedContent } from "@/lib/seeds";
 import { useSaveSection } from "@/components/AuthGate";
@@ -15,6 +16,7 @@ export default function IdentityPage({
 }) {
   const doc = book.docs["identity_now"];
   const save = useSaveSection();
+  const [editorRev, setEditorRev] = useState(0);
 
   const update = (content: DocJSON, wordCount: number) => {
     onChange({
@@ -30,7 +32,7 @@ export default function IdentityPage({
 
   return (
     <Editor
-      key={doc.updatedAt}
+      key={`identity_now-${editorRev}`}
       showToolbar
       value={doc.content}
       seed={identitySeedContent()}
@@ -44,6 +46,7 @@ export default function IdentityPage({
             slug="identity_now"
             book={book}
             onChange={onChange}
+            onResetComplete={() => setEditorRev((r) => r + 1)}
           />
         </div>
       }

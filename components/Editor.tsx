@@ -7,7 +7,7 @@ import Underline from "@tiptap/extension-underline";
 import { useEffect, useMemo, type ReactNode } from "react";
 import type { DocJSON } from "@/lib/types";
 import { PromptParagraph } from "@/lib/tiptap-prompt-paragraph";
-import { isDocEmpty } from "@/lib/seeds";
+import { isDocEmpty, wordCountFromDoc } from "@/lib/seeds";
 import EditorToolbar from "./EditorToolbar";
 
 export default function Editor({
@@ -45,8 +45,8 @@ export default function Editor({
     editorProps: { attributes: { class: "tiptap" } },
     immediatelyRender: false,
     onUpdate: ({ editor: ed }) => {
-      const words = ed.getText().trim();
-      onChange(ed.getJSON(), words ? words.split(/\s+/).length : 0);
+      const json = ed.getJSON() as DocJSON;
+      onChange(json, wordCountFromDoc(json));
     },
   });
 

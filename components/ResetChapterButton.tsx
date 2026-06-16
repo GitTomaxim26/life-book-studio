@@ -9,10 +9,13 @@ export default function ResetChapterButton({
   slug,
   book,
   onChange,
+  onResetComplete,
 }: {
   slug: string;
   book: Book;
   onChange: (b: Book) => void;
+  /** Bump editor remount key after a successful reset. */
+  onResetComplete?: () => void;
 }) {
   const resetSection = useResetSection();
   const [open, setOpen] = useState(false);
@@ -25,6 +28,7 @@ export default function ResetChapterButton({
     try {
       const result = await resetSection(slug);
       onChange(applySectionReset(book, result));
+      onResetComplete?.();
       setOpen(false);
     } catch (e) {
       const detail =

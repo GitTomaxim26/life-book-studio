@@ -145,12 +145,27 @@ export function isDocEmpty(content: DocJSON | null | undefined): boolean {
   return false;
 }
 
-/** Word count from TipTap JSON (plain text nodes only). */
+function isPromptParagraph(node: {
+  type?: string;
+  attrs?: Record<string, unknown>;
+}): boolean {
+  if (node.type !== "paragraph") return false;
+  const attrs = node.attrs ?? {};
+  return attrs["data-prompt"] === "true" || attrs.class === "prompt";
+}
+
+/** Word count from TipTap JSON — author prose only (excludes seed headings and prompts). */
 export function wordCountFromDoc(content: DocJSON): number {
   const texts: string[] = [];
   const walk = (node: unknown) => {
     if (!node || typeof node !== "object") return;
-    const n = node as { type?: string; text?: string; content?: unknown[] };
+    const n = node as {
+      type?: string;
+      text?: string;
+      content?: unknown[];
+      attrs?: Record<string, unknown>;
+    };
+    if (n.type === "heading" || isPromptParagraph(n)) return;
     if (n.type === "text" && n.text) texts.push(n.text);
     n.content?.forEach(walk);
   };

@@ -87,6 +87,8 @@ export default function AuthGate({
   const flushPendingSavesRef = useRef<() => void>(() => {});
   const savedTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const sessionRef = useRef<Session | null>(null);
+  const bookRef = useRef<Book | null>(null);
+  bookRef.current = book;
 
   const scheduleDebouncedSave = (key: string, run: () => Promise<void>) => {
     pendingSaves.current.set(key, run);
@@ -106,9 +108,20 @@ export default function AuthGate({
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => handle(data.session));
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) =>
-      handle(session)
-    );
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) {
+        handle(null);
+        return;
+      }
+      if (
+        sessionRef.current?.user.id === session.user.id &&
+        bookRef.current
+      ) {
+        sessionRef.current = session;
+        return;
+      }
+      handle(session);
+    });
     return () => sub.subscription.unsubscribe();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -156,14 +169,12 @@ export default function AuthGate({
     const onVisibility = () => {
       if (document.visibilityState === "hidden") flush();
     };
+    // Actual leave/close only — not tab switches (those use visibilitychange).
     window.addEventListener("beforeunload", flush);
-    window.addEventListener("pagehide", flush);
     document.addEventListener("visibilitychange", onVisibility);
     return () => {
       window.removeEventListener("beforeunload", flush);
-      window.removeEventListener("pagehide", flush);
       document.removeEventListener("visibilitychange", onVisibility);
-      flush();
     };
   }, []);
 

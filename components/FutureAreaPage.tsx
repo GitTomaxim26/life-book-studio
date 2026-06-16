@@ -6,6 +6,7 @@
 // a soft starter line. The editor itself opens clean (no generic placeholder).
 // Autosaves to the future_areas table.
 
+import { useState } from "react";
 import type { Book, DocJSON } from "@/lib/types";
 import { GROUPS, FUTURE_AREAS } from "@/lib/structure";
 import { useSaveArea } from "@/components/AuthGate";
@@ -25,6 +26,7 @@ export default function FutureAreaPage({
   const area = book.futureAreas[idx];
   const def = FUTURE_AREAS.find((a) => a.id === slug);
   const save = useSaveArea();
+  const [editorRev, setEditorRev] = useState(0);
 
   if (!area) {
     return (
@@ -51,7 +53,7 @@ export default function FutureAreaPage({
 
   return (
     <Editor
-      key={area.doc.updatedAt}
+      key={`${slug}-${editorRev}`}
       showToolbar
       value={area.doc.content}
       onChange={update}
@@ -62,7 +64,12 @@ export default function FutureAreaPage({
           <h1 className="doc-head-title">{area.title}</h1>
           {def?.frame && <p className="area-frame">{def.frame}</p>}
           {area.hint && <p className="doc-head-hint">{area.hint}</p>}
-          <ResetChapterButton slug={slug} book={book} onChange={onChange} />
+          <ResetChapterButton
+            slug={slug}
+            book={book}
+            onChange={onChange}
+            onResetComplete={() => setEditorRev((r) => r + 1)}
+          />
         </div>
       }
     />

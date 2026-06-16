@@ -5,6 +5,7 @@
 // Title + eyebrow come from structure.ts (single source of truth); the registry
 // (lib/chapters.ts) supplies only the lede and the seed scaffold.
 
+import { useState } from "react";
 import type { Book, DocJSON } from "@/lib/types";
 import { useSaveSection } from "@/components/AuthGate";
 import { leafInfo } from "@/lib/structure";
@@ -27,6 +28,7 @@ export default function ChapterPage({
   const doc = book.docs[slug];
   const save = useSaveSection();
   const info = leafInfo(slug);
+  const [editorRev, setEditorRev] = useState(0);
 
   const update = (content: DocJSON, wordCount: number) => {
     onChange({
@@ -42,7 +44,7 @@ export default function ChapterPage({
 
   return (
     <Editor
-      key={doc?.updatedAt ?? slug}
+      key={`${slug}-${editorRev}`}
       showToolbar
       value={doc?.content}
       seed={seed}
@@ -52,7 +54,12 @@ export default function ChapterPage({
           <div className="doc-head-eb">{info?.partLabel ?? "Your book"}</div>
           <h1 className="doc-head-title">{info?.title ?? "Chapter"}</h1>
           <p className="doc-head-lede">{lede}</p>
-          <ResetChapterButton slug={slug} book={book} onChange={onChange} />
+          <ResetChapterButton
+            slug={slug}
+            book={book}
+            onChange={onChange}
+            onResetComplete={() => setEditorRev((r) => r + 1)}
+          />
         </div>
       }
     />
